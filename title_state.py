@@ -1,20 +1,22 @@
 from pico2d import *
 import game_framework
 import main_state
+import Object
 
 name = "TitleState"
-image = None
+background = None
 
 
 def enter():
-    global image
-    image = load_image('title.png')
+    global background
+    background = Object.CObject(400, 300)
+    background.Set_idleimage('Data\\Graphic\\Background\\title.png')
     pass
 
 
 def exit():
-    global image
-    del(image)
+    global background
+    del(background)
     clear_canvas()
     pass
 
@@ -34,7 +36,7 @@ def handle_events():
 def draw():
     global image
     clear_canvas()
-    image.draw(400, 300)
+    background.draw()
     update_canvas()
     pass
 

@@ -32,11 +32,12 @@ class Font:
 def enter():
     global boy, grass, font
     boy = Object.CObject(0.0, 90.0)
-    boy.Set_moveimage('Data\\Graphic\\Instance\\run_animation.png', True, 8, 100, 100)
-    # boy.Set_moveimage("..\\..\\Graphic\\Instance\\run_animation.png", True, 8, 100, 100)
-    boy.Set_idleimage('Data\\Graphic\\Instance\\run_animation.png', True, 8, 100, 100)
+    #boy.Set_moveimage('Data\\Graphic\\Instance\\run_animation.png', True, 8, 100, 100)
+    #boy.Set_idleimage('Data\\Graphic\\Instance\\run_animation.png', True, 8, 100, 100)
+    boy.Set_moveimage('Data\\Graphic\\Instance\\test.png')
+    boy.Set_idleimage('Data\\Graphic\\Instance\\test.png')
+    boy.Draw_PrevImages(True, 10)
     grass = Object.CObject(400.0, 30.0)
-    grass.Set_moveimage('Data\\Graphic\\Background\\grass.png')
     grass.Set_idleimage('Data\\Graphic\\Background\\grass.png')
     font = Font()
     pass
@@ -96,7 +97,7 @@ def draw():
     if pause_flag:
         font.draw()
     update_canvas()
-    delay(0.01)
+    delay(1.0 / 100.0)
     pass
 
 
