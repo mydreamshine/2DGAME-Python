@@ -1,6 +1,6 @@
 from pico2d import *
-from ..Framework import game_framework
-from ..Scene import main_state
+import game_framework
+import main_state
 
 name = "TitleState"
 image = None

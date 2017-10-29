@@ -3,9 +3,9 @@ import json
 import os
 
 from pico2d import *
-from ..Framework import game_framework
-from ..Scene import title_state
-from ..Object import Object
+import game_framework
+import title_state
+import Object
 
 name = "MainState"
 boy = None
@@ -16,7 +16,7 @@ pause_flag = False
 class Font:
     def __init__(self):
         self.intervalTime = 0
-        self.image = load_image('..\\..\\Graphic\\Effect\\PAUSE.png')
+        self.image = load_image('Data\\Graphic\\Effect\\PAUSE.png')
 
     def intervaltime_init(self):
         self.intervalTime = 0
@@ -32,12 +32,12 @@ class Font:
 def enter():
     global boy, grass, font
     boy = Object.CObject(0.0, 90.0)
-    boy.Set_moveimage('run_animation.png', True, 8, 100, 100)
+    boy.Set_moveimage('Data\\Graphic\\Instance\\run_animation.png', True, 8, 100, 100)
     # boy.Set_moveimage("..\\..\\Graphic\\Instance\\run_animation.png", True, 8, 100, 100)
-    boy.Set_idleimage('..\\..\\Graphic\\Instance\\run_animation.png', True, 8, 100, 100)
+    boy.Set_idleimage('Data\\Graphic\\Instance\\run_animation.png', True, 8, 100, 100)
     grass = Object.CObject(400.0, 30.0)
-    grass.Set_moveimage('..\\..\\Graphic\\Background\\grass.png')
-    grass.Set_idleimage('..\\..\\Graphic\\Background\\grass.png')
+    grass.Set_moveimage('Data\\Graphic\\Background\\grass.png')
+    grass.Set_idleimage('Data\\Graphic\\Background\\grass.png')
     font = Font()
     pass
 

@@ -1,6 +1,6 @@
 from pico2d import *
-from Data.Bin.Framework import game_framework
-from Data.Bin.Scene import main_state
+import game_framework
+import main_state
 # import start_state
 
 # game_framework.run(start_state)
