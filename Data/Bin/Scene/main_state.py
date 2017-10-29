@@ -32,7 +32,8 @@ class Font:
 def enter():
     global boy, grass, font
     boy = Object.CObject(0.0, 90.0)
-    boy.Set_moveimage('..\\..\\Graphic\\Instance\\run_animation.png', True, 8, 100, 100)
+    boy.Set_moveimage('run_animation.png', True, 8, 100, 100)
+    # boy.Set_moveimage("..\\..\\Graphic\\Instance\\run_animation.png", True, 8, 100, 100)
     boy.Set_idleimage('..\\..\\Graphic\\Instance\\run_animation.png', True, 8, 100, 100)
     grass = Object.CObject(400.0, 30.0)
     grass.Set_moveimage('..\\..\\Graphic\\Background\\grass.png')
