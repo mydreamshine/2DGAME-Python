@@ -1,6 +1,12 @@
 from pico2d import *
 
 
+class CImage:
+    def __init__(self, image_path = None, frames = 0):
+        self.property = load_image(image_path)
+        self.FRAMES_PER_ACTION = frames
+
+
 class CFrame:
     def __init__(self):
         self.x, self.y = 0, 0
@@ -32,8 +38,10 @@ class CObject:
         self.FRAMES_PER_ACTION_idle = 0
 
         # 오브젝트 이미지 소스 설정
-        self.moveimage = None # 이동 이미지 소스
-        self.idleimage = None  # idle 이미지 소스
+        self.moveimage_index = 0 # 이동 이미지 종류 인덱스
+        self.idleimage_index = 0 # idle 이미지 종류 인덱스
+        self.moveimage = [] # 이동 이미지 소스
+        self.idleimage = []  # idle 이미지 소스
         self.Size_Width = 0 # 오브젝트 가로크기
         self.Size_Height = 0  # 오브젝트 세로크기
         self.MoveFrameWidth = 0 # 이동 이미지 프레임 가로크기
@@ -48,33 +56,52 @@ class CObject:
         self.count_PrevFrame = 0
         self.frameTime = 0 # 프레임 재생시간
     def __del__(self):
-        if self.moveimage != None: del(self.moveimage)
-        if self.idleimage != None: del (self.idleimage)
+        if len(self.moveimage) > 0: self.moveimage.clear()
+        if len(self.idleimage) > 0: self.idleimage.clear()
         if self.PrevIMAGEs != None: del (self.PrevIMAGEs)
 
-    # 이동 이미지 소스 등록 (이미지 경로, 애니메이션 여부, 애니메이션 프레임 갯수, 프레임 크기)
-    def Set_moveimage(self, path_image, animated = False, count_animated_frames = 1, frame_width = 0, frame_height = 0):
-        self.moveimage = load_image(path_image)
+    # 이동 이미지 소스 등록 (이미지 경로, 애니메이션 프레임 갯수)
+    def Apped_moveimage(self, path_image, count_animated_frames = 1):
+        self.moveimage.append(CImage(path_image, count_animated_frames))
+        self.moveimage_index = len(self.moveimage) - 1
         self.FRAMES_PER_ACTION_move = count_animated_frames
-        self.MoveFrameWidth = frame_width if animated else self.moveimage.w
-        self.MoveFrameHeight = frame_height if animated else self.moveimage.h
-        self.Size_Width = frame_width if animated else self.moveimage.w
-        self.Size_Height = frame_width if animated else self.moveimage.h
+        self.MoveFrameWidth = self.Size_Width = self.moveimage[-1].property.w
+        self.MoveFrameHeight = self.Size_Height = self.moveimage[-1].property.h
 
-    # idle 이미지 소스 등록 (이미지 경로, 애니메이션 여부, 애니메이션 프레임 갯수, 프레임 크기)
-    def Set_idleimage(self, path_image, animated = False, count_animated_frames = 1, frame_width = 0, frame_height = 0):
-        self.idleimage = load_image(path_image)
+    # idle 이미지 소스 등록 (이미지 경로, 애니메이션 프레임 갯수)
+    def Apped_idleimage(self, path_image, count_animated_frames = 1):
+        self.idleimage.append(CImage(path_image, count_animated_frames))
+        self.idleimage_index = len(self.idleimage) - 1
         self.FRAMES_PER_ACTION_idle = count_animated_frames
-        self.idleFrameWidth = frame_width if animated else self.idleimage.w
-        self.idleFrameHeight = frame_height if animated else self.idleimage.h
-        self.Size_Width = frame_width if animated else self.idleimage.w
-        self.Size_Height = frame_width if animated else self.idleimage.h
+        self.idleFrameWidth = self.Size_Width = self.idleimage[-1].property.w
+        self.idleFrameHeight = self.Size_Height = self.idleimage[-1].property.h
+
+     # 그려질 이동 이미지 종류 설정
+    def Set_moveFrames(self, index):
+        self.moveimage_index = index
+        self.FRAMES_PER_ACTION_move = self.moveimage[index].FRAMES_PER_ACTION
+        self.MoveFrameWidth = self.Size_Width = self.moveimage[index].property.w
+        self.MoveFrameHeight = self.Size_Height = self.moveimage[index].property.h
+        self.stack_Frame = 0
+        self.current_Frame = 0
+        self.count_PrevFrame = 0
+
+     # 그려질 idle 이미지 종류 설정
+    def Set_idleFrames(self, index):
+        self.idleimage_index = index
+        self.FRAMES_PER_ACTION = self.idleimage[index].FRAMES_PER_ACTION
+        self.idleFrameWidth = self.Size_Width = self.idleimage[index].property.w
+        self.idleFrameHeight = self.Size_Height = self.idleimage[index].property.h
+        self.stack_Frame = 0
+        self.current_Frame = 0
+        self.count_PrevFrame = 0
 
     # 잔상 그리기
     def Draw_PrevImages(self, Flag = False, count_previmage = 0):
         if Flag and self.PrevIMAGEs == None:
             self.PrevIMAGEs = [CFrame() for i in range(count_previmage)]
         self.draw_Previmages = Flag
+        self.count_PrevFrame = 0
 
     # 위치 지정
     def Set_Pos(self, x = 0.0, y = 0.0):
@@ -132,6 +159,9 @@ class CObject:
         self.x += distance_x
         self.y += distance_y
 
+        self.frameTime = get_time() - self.currentTime
+        self.currentTime += self.frameTime
+
     # 크기 지정
     def Size(self, w, h):
         self.Size_Width, self.Size_Height = w, h
@@ -150,18 +180,15 @@ class CObject:
                 prevFrame = self.PrevIMAGEs[self.count_PrevFrame - (PrevPoint + 1)].Frame
                 (PrevX, PrevY) = (self.PrevIMAGEs[self.count_PrevFrame - (PrevPoint + 1)].x, self.PrevIMAGEs[self.count_PrevFrame - (PrevPoint + 1)].y)
                 if self.move_state:
-                    self.moveimage.opacify((PrevPoint + 1.0) / (len(self.PrevIMAGEs) * 2))
-                    self.moveimage.clip_draw(prevFrame * self.MoveFrameWidth, 0, self.MoveFrameWidth, self.MoveFrameHeight, PrevX, PrevY, self.Size_Width, self.Size_Height)
+                    self.moveimage[self.moveimage_index].property.opacify((PrevPoint + 1.0) / (len(self.PrevIMAGEs) * 2))
+                    self.moveimage[self.moveimage_index].property.clip_draw(prevFrame * self.MoveFrameWidth, 0, self.MoveFrameWidth, self.MoveFrameHeight, PrevX, PrevY, self.Size_Width, self.Size_Height)
                 elif self.idle_state:
-                    self.idleimage.opacify((PrevPoint + 1.0) / (len(self.PrevIMAGEs) * 2))
-                    self.idleimage.clip_draw(prevFrame * self.idleFrameWidth, 0, self.idleFrameWidth, self.idleFrameHeight, PrevX, PrevY, self.Size_Width, self.Size_Height)
+                    self.idleimage[self.idleimage_index].property.opacify((PrevPoint + 1.0) / (len(self.PrevIMAGEs) * 2))
+                    self.idleimage[self.idleimage_index].property.clip_draw(prevFrame * self.idleFrameWidth, 0, self.idleFrameWidth, self.idleFrameHeight, PrevX, PrevY, self.Size_Width, self.Size_Height)
 
         if self.move_state:
-            self.moveimage.opacify(1)
-            self.moveimage.clip_draw(self.current_Frame * self.MoveFrameWidth, 0, self.MoveFrameWidth, self.MoveFrameHeight, self.x, self.y, self.Size_Width, self.Size_Height)
+            self.moveimage[self.moveimage_index].property.opacify(1)
+            self.moveimage[self.moveimage_index].property.clip_draw(self.current_Frame * self.MoveFrameWidth, 0, self.MoveFrameWidth, self.MoveFrameHeight, self.x, self.y, self.Size_Width, self.Size_Height)
         elif self.idle_state:
-            self.idleimage.opacify(1)
-            self.idleimage.clip_draw(self.current_Frame * self.idleFrameWidth, 0, self.idleFrameWidth, self.idleFrameHeight, self.x, self.y, self.Size_Width, self.Size_Height)
-
-        self.frameTime = get_time() - self.currentTime
-        self.currentTime += self.frameTime
+            self.idleimage[self.idleimage_index].property.opacify(1)
+            self.idleimage[self.idleimage_index].property.clip_draw(self.current_Frame * self.idleFrameWidth, 0, self.idleFrameWidth, self.idleFrameHeight, self.x, self.y, self.Size_Width, self.Size_Height)

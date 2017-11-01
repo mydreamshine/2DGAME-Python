@@ -4,7 +4,7 @@ import os
 
 from pico2d import *
 import game_framework
-import title_state
+import menu_state
 import Object
 
 name = "MainState"
@@ -32,13 +32,11 @@ class Font:
 def enter():
     global boy, grass, font
     boy = Object.CObject(0.0, 90.0)
-    #boy.Set_moveimage('Data\\Graphic\\Instance\\run_animation.png', True, 8, 100, 100)
-    #boy.Set_idleimage('Data\\Graphic\\Instance\\run_animation.png', True, 8, 100, 100)
-    boy.Set_moveimage('Data\\Graphic\\Instance\\test.png')
-    boy.Set_idleimage('Data\\Graphic\\Instance\\test.png')
+    boy.Apped_moveimage('Data\\Graphic\\Instance\\test.png')
+    boy.Apped_idleimage('Data\\Graphic\\Instance\\test.png')
     boy.Draw_PrevImages(True, 10)
     grass = Object.CObject(400.0, 30.0)
-    grass.Set_idleimage('Data\\Graphic\\Background\\grass.png')
+    grass.Apped_idleimage('Data\\Graphic\\Background\\grass.png')
     font = Font()
     pass
 
@@ -72,7 +70,7 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
-            game_framework.change_state(title_state)
+            game_framework.change_state(menu_state)
         elif event.type == SDL_MOUSEMOTION:
             boy.Set_Pos(event.x, 599 - event.y)
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_p):
