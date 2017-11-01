@@ -97,7 +97,7 @@ def draw():
     if pause_flag:
         font.draw()
     update_canvas()
-    delay(1.0 / 100.0)
+    # delay(0.001)
     pass
 
 

@@ -1,6 +1,7 @@
 from pico2d import *
 import game_framework
 import main_state
+import title_state
 # import start_state
 
 # game_framework.run(start_state)
@@ -9,7 +10,7 @@ import main_state
 # 문제가 없으면 집어넣는다.
 # main_state 테스트
 open_canvas()
-game_framework.run(main_state)
+game_framework.run(title_state)
 close_canvas()
 # title_state 테스트
 # open_canvas()

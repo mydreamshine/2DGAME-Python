@@ -16,8 +16,8 @@ class CObject:
         self.currentTime = get_time()
 
         # 활동 플래그
-        self.idle = True # 대기 상태(이동하지 않는 상태)
-        self.move = False # 이동하는 상태
+        self.idle_state = True # 대기 상태(이동하지 않는 상태)
+        self.move_state = False # 이동하는 상태
 
         # 이동 및 프레임 재생 속도
         self.PIXEL_PER_METER = 10.0 / 0.3 # 속도단위에 따른 상대적 객체 속도 (10픽셀당 30cm)
@@ -58,6 +58,8 @@ class CObject:
         self.FRAMES_PER_ACTION_move = count_animated_frames
         self.MoveFrameWidth = frame_width if animated else self.moveimage.w
         self.MoveFrameHeight = frame_height if animated else self.moveimage.h
+        self.Size_Width = frame_width if animated else self.moveimage.w
+        self.Size_Height = frame_width if animated else self.moveimage.h
 
     # idle 이미지 소스 등록 (이미지 경로, 애니메이션 여부, 애니메이션 프레임 갯수, 프레임 크기)
     def Set_idleimage(self, path_image, animated = False, count_animated_frames = 1, frame_width = 0, frame_height = 0):
@@ -83,23 +85,23 @@ class CObject:
         self.RUN_SPEED_KMPH_x, self.RUN_SPEED_KMPH_y = Speed_x, Speed_y  # 추상적 객체 속도
 
         # 속도 최저값 조정
-        self.RUN_SPEED_KMPH_x = 0.0 if self.RUN_SPEED_KMPH_x < 0.001 else self.RUN_SPEED_KMPH_x
-        self.RUN_SPEED_KMPH_y = 0.0 if self.RUN_SPEED_KMPH_y < 0.001 else self.RUN_SPEED_KMPH_y
+        self.RUN_SPEED_KMPH_x = 0.0 if abs(self.RUN_SPEED_KMPH_x) < 0.001 else self.RUN_SPEED_KMPH_x
+        self.RUN_SPEED_KMPH_y = 0.0 if abs(self.RUN_SPEED_KMPH_y) < 0.001 else self.RUN_SPEED_KMPH_y
 
         # 객체속도 지정
         self.RUN_SPEED_PPS_x = (self.RUN_SPEED_KMPH_x * 1000.0 / 3600.0) * self.PIXEL_PER_METER  # 실제 객체 속도
         self.RUN_SPEED_PPS_y = (self.RUN_SPEED_KMPH_y * 1000.0 / 3600.0) * self.PIXEL_PER_METER  # 실제 객체 속도
 
         #움직임 상태 플래그 결정
-        if self.RUN_SPEED_PPS_x == 0.0 and self.RUN_SPEED_PPS_y == 0.0 and self.move == True:
-            self.move = False
-            self.idle = True
+        if self.RUN_SPEED_PPS_x == 0.0 and self.RUN_SPEED_PPS_y == 0.0 and self.move_state == True:
+            self.move_state = False
+            self.idle_state = True
             self.stack_Frame = 0
             self.current_Frame = 0
             self.count_PrevFrame = 0
-        elif self.RUN_SPEED_PPS_x != 0.0 and self.RUN_SPEED_PPS_y != 0.0 and self.move == False:
-            self.move = True
-            self.idle = False
+        elif (self.RUN_SPEED_PPS_x != 0.0 or self.RUN_SPEED_PPS_y != 0.0) and self.move_state == False:
+            self.move_state = True
+            self.idle_state = False
             self.stack_Frame = 0
             self.current_Frame = 0
             self.count_PrevFrame = 0
@@ -134,26 +136,30 @@ class CObject:
     def Size(self, w, h):
         self.Size_Width, self.Size_Height = w, h
 
+    def Scale(self, valScale = 1.0):
+        self.Size_Width = (self.MoveFrameWidth if self.move_state else self.idleFrameWidth) * valScale
+        self.Size_Height = (self.MoveFrameHeight if self.move_state else self.idleFrameHeight) * valScale
+
     # 프레임에 따라 그리기
     def draw(self):
-        self.stack_Frame += (self.FRAMES_PER_ACTION_move if self.move else self.FRAMES_PER_ACTION_idle)  * self.ACTION_PER_TIME * self.frameTime
-        self.current_Frame = int(self.stack_Frame) % (self.FRAMES_PER_ACTION_move if self.move else self.FRAMES_PER_ACTION_idle)
+        self.stack_Frame += (self.FRAMES_PER_ACTION_move if self.move_state else self.FRAMES_PER_ACTION_idle)  * self.ACTION_PER_TIME * self.frameTime
+        self.current_Frame = int(self.stack_Frame) % (self.FRAMES_PER_ACTION_move if self.move_state else self.FRAMES_PER_ACTION_idle)
 
         if self.draw_Previmages:
             for PrevPoint in range(0, self.count_PrevFrame):
                 prevFrame = self.PrevIMAGEs[self.count_PrevFrame - (PrevPoint + 1)].Frame
                 (PrevX, PrevY) = (self.PrevIMAGEs[self.count_PrevFrame - (PrevPoint + 1)].x, self.PrevIMAGEs[self.count_PrevFrame - (PrevPoint + 1)].y)
-                if self.move:
+                if self.move_state:
                     self.moveimage.opacify((PrevPoint + 1.0) / (len(self.PrevIMAGEs) * 2))
                     self.moveimage.clip_draw(prevFrame * self.MoveFrameWidth, 0, self.MoveFrameWidth, self.MoveFrameHeight, PrevX, PrevY, self.Size_Width, self.Size_Height)
-                elif self.idle:
+                elif self.idle_state:
                     self.idleimage.opacify((PrevPoint + 1.0) / (len(self.PrevIMAGEs) * 2))
                     self.idleimage.clip_draw(prevFrame * self.idleFrameWidth, 0, self.idleFrameWidth, self.idleFrameHeight, PrevX, PrevY, self.Size_Width, self.Size_Height)
 
-        if self.move:
+        if self.move_state:
             self.moveimage.opacify(1)
             self.moveimage.clip_draw(self.current_Frame * self.MoveFrameWidth, 0, self.MoveFrameWidth, self.MoveFrameHeight, self.x, self.y, self.Size_Width, self.Size_Height)
-        elif self.idle:
+        elif self.idle_state:
             self.idleimage.opacify(1)
             self.idleimage.clip_draw(self.current_Frame * self.idleFrameWidth, 0, self.idleFrameWidth, self.idleFrameHeight, self.x, self.y, self.Size_Width, self.Size_Height)
 
