@@ -3,7 +3,7 @@ from pygame import mixer
 import game_framework
 import menu_state
 import Object
-
+import GameTime
 
 name = "TitleState"
 BGM = None
@@ -15,12 +15,8 @@ info = None
 varScale = 1.0
 varReScale = 1.0
 velocity_Scale = 0.0
-accelaration_Scale = 0.0022
+accelaration_Scale = 0.01
 MaxScale = 1.2
-
-actiontime_cur = 0.0
-actiontime_frame = 0.0
-actionstart = False
 
 
 def DeleteObject():
@@ -34,6 +30,7 @@ def DeleteObject():
 
 
 def enter():
+    GameTime.init_time()
     global BGM
     mixer.init()
     BGM = mixer.Sound('Data\\Sound\\title_bgm.wav')
@@ -114,10 +111,6 @@ def draw():
 def update():
     global background1, background2, whitebar, game_name
     global MaxScale, varScale, varReScale, velocity_Scale, accelaration_Scale
-    global actiontime_cur, actiontime_frame, actionstart
-    if not actionstart:
-        actionstart = True
-        actiontime_cur = get_time()
 
     if background1 != None and background2 != None and game_name != None:
         background1.Move()
@@ -136,8 +129,8 @@ def update():
             varScale = MaxScale if varScale > MaxScale else 1.0
             velocity_Scale *= -1
         else: velocity_Scale += accelaration_Scale
-        varScale += velocity_Scale * actiontime_frame
-        varReScale -= velocity_Scale * actiontime_frame
+        varScale += velocity_Scale * GameTime.actiontime_frame
+        varReScale -= velocity_Scale * GameTime.actiontime_frame
         if whitebar != None:
             Size_Width = (whitebar.MoveFrameWidth if whitebar.move_state else whitebar.idleFrameWidth) * varScale
             Size_Height = whitebar.MoveFrameHeight if whitebar.move_state else whitebar.idleFrameHeight
@@ -148,14 +141,14 @@ def update():
         if whitebar != None and whitebar.x + whitebar.Size_Width / 2 < 0:
             del(whitebar); whitebar = None
         elif whitebar != None:
-            if whitebar.RUN_SPEED_KMPH_x != 0.0: whitebar.Set_moveSpeed(whitebar.RUN_SPEED_KMPH_x - 200 * actiontime_frame)
+            if whitebar.RUN_SPEED_KMPH_x != 0.0: whitebar.Set_moveSpeed(whitebar.RUN_SPEED_KMPH_x - 200 * GameTime.actiontime_frame)
             whitebar.Move()
 
         if game_name.x < 200: game_name.x = 200.0; game_name.Set_moveSpeed(0.0)
         else: game_name.Move()
 
-    actiontime_frame = get_time() - actiontime_cur
-    actiontime_cur += actiontime_frame
+    GameTime.update_time()
+    delay(0.01)
     pass
 
 

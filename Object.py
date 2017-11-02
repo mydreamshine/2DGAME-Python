@@ -14,6 +14,10 @@ class CFrame:
 
 
 class CObject:
+
+    PIXEL_PER_METER = 10.0 / 0.3  # 속도단위에 따른 상대적 객체 속도 (10픽셀당 30cm)
+    FADE_SPEED = 1.1
+
     def __init__(self, pos_x = 0.0, pos_y = 0.0):
         # 위치
         self.x, self.y = pos_x, pos_y
@@ -26,7 +30,6 @@ class CObject:
         self.move_state = False # 이동하는 상태
 
         # 이동 및 프레임 재생 속도
-        self.PIXEL_PER_METER = 10.0 / 0.3 # 속도단위에 따른 상대적 객체 속도 (10픽셀당 30cm)
         self.RUN_SPEED_KMPH_x, self.RUN_SPEED_KMPH_y = 0.0, 0.0 # 추상적 객체 속도
         self.RUN_SPEED_PPS_x = (self.RUN_SPEED_KMPH_x * 1000.0 / 3600.0) * self.PIXEL_PER_METER # 실제 객체 속도
         self.RUN_SPEED_PPS_y = (self.RUN_SPEED_KMPH_y * 1000.0 / 3600.0) * self.PIXEL_PER_METER  # 실제 객체 속도
@@ -51,6 +54,10 @@ class CObject:
 
         self.PrevIMAGEs = None # 잔상
         self.draw_Previmages = False # 잔상 플래그
+
+        self.Fade_Out = False # Fade-Out 플래그
+        self.Fade_In = False # Fade-in 플래그
+        self.Num_opacify = 1.0 # 불투명도
 
         self.stack_Frame, self.current_Frame = 0.0, 0 # 활동 시간에 따른 프레임 누적, 누적된 프레임에 따른 현재 프레임
         self.count_PrevFrame = 0
@@ -138,6 +145,11 @@ class CObject:
         self.TIME_PER_ACTION = Speed
         self.ACTION_PER_TIME = 1.0 / self.TIME_PER_ACTION
 
+    # 객체 활동주기 측정
+    def Set_ActiveTime(self):
+        self.frameTime = get_time() - self.currentTime
+        self.currentTime += self.frameTime
+
     # 지정된 이동속도에 따라 이동
     def Move(self):
         distance_x = self.RUN_SPEED_PPS_x * self.frameTime
@@ -159,8 +171,8 @@ class CObject:
         self.x += distance_x
         self.y += distance_y
 
-        self.frameTime = get_time() - self.currentTime
-        self.currentTime += self.frameTime
+        # 객체 활동주기 지정
+        self.Set_ActiveTime()
 
     # 크기 지정
     def Size(self, w, h):
@@ -170,25 +182,44 @@ class CObject:
         self.Size_Width = (self.MoveFrameWidth if self.move_state else self.idleFrameWidth) * valScale
         self.Size_Height = (self.MoveFrameHeight if self.move_state else self.idleFrameHeight) * valScale
 
+    def Active_Fade_Out(self):
+        self.Fade_Out = True
+        self.Fade_In = False
+
+    def Active_Fade_In(self):
+        self.Fade_Out = False
+        self.Fade_In = True
+
     # 프레임에 따라 그리기
     def draw(self):
+        # 프레임 결정
         self.stack_Frame += (self.FRAMES_PER_ACTION_move if self.move_state else self.FRAMES_PER_ACTION_idle)  * self.ACTION_PER_TIME * self.frameTime
         self.current_Frame = int(self.stack_Frame) % (self.FRAMES_PER_ACTION_move if self.move_state else self.FRAMES_PER_ACTION_idle)
 
+        # Fade 효과
+        if self.Fade_Out and self.Num_opacify > 0.0:
+            self.Num_opacify -= self.FADE_SPEED * self.frameTime
+        elif self.Fade_In and self.Num_opacify < 1.0:
+            self.Num_opacify += self.FADE_SPEED * self.frameTime
+        if self.Num_opacify < 0.0: self.Num_opacify = 0.0
+        elif self.Num_opacify > 1.0: self.Num_opacify = 1.0
+
+        # 잔상
         if self.draw_Previmages:
             for PrevPoint in range(0, self.count_PrevFrame):
                 prevFrame = self.PrevIMAGEs[self.count_PrevFrame - (PrevPoint + 1)].Frame
                 (PrevX, PrevY) = (self.PrevIMAGEs[self.count_PrevFrame - (PrevPoint + 1)].x, self.PrevIMAGEs[self.count_PrevFrame - (PrevPoint + 1)].y)
                 if self.move_state:
-                    self.moveimage[self.moveimage_index].property.opacify((PrevPoint + 1.0) / (len(self.PrevIMAGEs) * 2))
+                    self.moveimage[self.moveimage_index].property.opacify((PrevPoint + 1.0) / (len(self.PrevIMAGEs) * 2) * self.Num_opacify)
                     self.moveimage[self.moveimage_index].property.clip_draw(prevFrame * self.MoveFrameWidth, 0, self.MoveFrameWidth, self.MoveFrameHeight, PrevX, PrevY, self.Size_Width, self.Size_Height)
                 elif self.idle_state:
-                    self.idleimage[self.idleimage_index].property.opacify((PrevPoint + 1.0) / (len(self.PrevIMAGEs) * 2))
+                    self.idleimage[self.idleimage_index].property.opacify((PrevPoint + 1.0) / (len(self.PrevIMAGEs) * 2) * self.Num_opacify)
                     self.idleimage[self.idleimage_index].property.clip_draw(prevFrame * self.idleFrameWidth, 0, self.idleFrameWidth, self.idleFrameHeight, PrevX, PrevY, self.Size_Width, self.Size_Height)
 
+        # 객체 상태에 따른 이미지
         if self.move_state:
-            self.moveimage[self.moveimage_index].property.opacify(1)
+            self.moveimage[self.moveimage_index].property.opacify(self.Num_opacify)
             self.moveimage[self.moveimage_index].property.clip_draw(self.current_Frame * self.MoveFrameWidth, 0, self.MoveFrameWidth, self.MoveFrameHeight, self.x, self.y, self.Size_Width, self.Size_Height)
         elif self.idle_state:
-            self.idleimage[self.idleimage_index].property.opacify(1)
+            self.idleimage[self.idleimage_index].property.opacify(self.Num_opacify)
             self.idleimage[self.idleimage_index].property.clip_draw(self.current_Frame * self.idleFrameWidth, 0, self.idleFrameWidth, self.idleFrameHeight, self.x, self.y, self.Size_Width, self.Size_Height)
