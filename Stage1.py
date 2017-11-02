@@ -75,6 +75,9 @@ def handle_events():
             game_framework.push_state(pause_state)
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_BACKSPACE):
             fade.Active_Fade_In()
+        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_p):
+            if character.draw_Previmages: character.Draw_PrevImages(False)
+            else: character.Draw_PrevImages(True)
         elif event.type == SDL_MOUSEMOTION:
             character.Set_Pos(event.x, 599 - event.y)
     pass

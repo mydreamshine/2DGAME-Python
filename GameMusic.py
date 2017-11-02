@@ -34,7 +34,7 @@ def Play_Title():
         if BGM != None: BGM.stop(); del (BGM); BGM = None
         mixer.init()
         BGM = mixer.Sound('Data\\Sound\\title_bgm.wav')
-        BGM.play()
+        BGM.play(-1)
         State_BGM = TITLE
 
 
@@ -46,7 +46,7 @@ def Play_Stage():
         if BGM != None: BGM.stop(); del (BGM); BGM = None
         mixer.init()
         BGM = mixer.Sound('Data\\Sound\\stage_bgm.wav')
-        BGM.play()
+        BGM.play(-1)
         State_BGM = STAGE
 
 
@@ -58,5 +58,5 @@ def Play_GameOver():
         if BGM != None: BGM.stop(); del (BGM); BGM = None
         mixer.init()
         BGM = mixer.Sound('Data\\Sound\\gameover_bgm.wav')
-        BGM.play()
+        BGM.play(-1)
         State_BGM = GAMEOVER
