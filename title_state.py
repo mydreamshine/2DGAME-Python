@@ -1,12 +1,11 @@
 from pico2d import *
-from pygame import mixer
 import game_framework
 import menu_state
 import Object
 import GameTime
+import GameMusic
 
 name = "TitleState"
-BGM = None
 background1 = None
 background2 = None
 whitebar = None
@@ -15,13 +14,13 @@ info = None
 varScale = 1.0
 varReScale = 1.0
 velocity_Scale = 0.0
-accelaration_Scale = 0.01
+accelaration_Scale = 0.004
 MaxScale = 1.2
 
 
 def DeleteObject():
-    global BGM, background1, background2, whitebar, game_name, info
-    if BGM != None: del(BGM); BGM = None
+    global background1, background2, whitebar, game_name, info
+    GameMusic.Delete()
     if background1 != None: del (background1); background1 = None
     if background2 != None: del (background2); background2 = None
     if whitebar != None: del (whitebar); whitebar = None
@@ -29,12 +28,30 @@ def DeleteObject():
     if info != None: del(info); info = None
 
 
+def ReCreateObject():
+    global background1, background2, game_name
+    if background1 == None:
+        GameMusic.Play_Title()
+        background1 = Object.CObject(400.0, 300.0)
+        background1.Apped_moveimage('Data\\Graphic\\Background\\title.png')
+        background1.Set_moveSpeed(-8.0)
+
+        right = background1.x + background1.Size_Width
+
+        if background2 == None:
+            background2 = Object.CObject(right, 300.0)
+            background2.Apped_moveimage('Data\\Graphic\\Background\\title.png')
+            background2.Set_moveSpeed(-8.0)
+
+    if game_name == None:
+        game_name = Object.CObject(200.0, 300.0)
+        game_name.Apped_idleimage('Data\\Graphic\\Menu\\game_name.png')
+        game_name.Apped_moveimage('Data\\Graphic\\Menu\\game_name.png')
+
+
 def enter():
     GameTime.init_time()
-    global BGM
-    mixer.init()
-    BGM = mixer.Sound('Data\\Sound\\title_bgm.wav')
-    BGM.play()
+    GameMusic.Play_Title()
 
     global background1, background2, whitebar, game_name, info
     background1 = Object.CObject(400.0, 300.0)
@@ -70,8 +87,6 @@ def handle_events():
     for event in events:
         if event.type == SDL_QUIT:
             DeleteObject()
-            game_framework.quit()
-        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
             game_name.Set_moveSpeed(-30.0)
@@ -128,14 +143,22 @@ def update():
         if varScale > MaxScale or varScale < 1.0:
             varScale = MaxScale if varScale > MaxScale else 1.0
             velocity_Scale *= -1
-        else: velocity_Scale += accelaration_Scale
-        varScale += velocity_Scale * GameTime.actiontime_frame
-        varReScale -= velocity_Scale * GameTime.actiontime_frame
+        else: velocity_Scale += accelaration_Scale * GameTime.actiontime_frame
+
+        # 부동소수점 연산 오차 조정
+        if abs(velocity_Scale) < 0.0011041:
+            velocity_Scale = 0.0011041 if velocity_Scale > 0.0 else -0.0011041
+        elif abs(velocity_Scale) > 0.005115:
+            velocity_Scale = 0.005115 if velocity_Scale > 0.0 else -0.005115
+
+        varScale += velocity_Scale
+        varReScale -= velocity_Scale
         if whitebar != None:
             Size_Width = (whitebar.MoveFrameWidth if whitebar.move_state else whitebar.idleFrameWidth) * varScale
             Size_Height = whitebar.MoveFrameHeight if whitebar.move_state else whitebar.idleFrameHeight
             whitebar.Size(Size_Width, Size_Height)
         game_name.Scale(varReScale)
+
 
         # 타이틀 텍스트 이동
         if whitebar != None and whitebar.x + whitebar.Size_Width / 2 < 0:
@@ -145,7 +168,7 @@ def update():
             whitebar.Move()
 
         if game_name.x < 200: game_name.x = 200.0; game_name.Set_moveSpeed(0.0)
-        else: game_name.Move()
+        game_name.Move()
 
     GameTime.update_time()
     delay(0.01)

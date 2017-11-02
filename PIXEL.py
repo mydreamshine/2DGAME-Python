@@ -1,6 +1,6 @@
 from pico2d import *
 import game_framework
-import main_state
+import Stage1
 import title_state
 
 open_canvas()

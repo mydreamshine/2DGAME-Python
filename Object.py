@@ -8,7 +8,7 @@ class CImage:
 
 
 class CFrame:
-    def __init__(self):
+    def __init__(self, image_path = None):
         self.x, self.y = 0, 0
         self.Frame = 0
 
@@ -201,8 +201,8 @@ class CObject:
             self.Num_opacify -= self.FADE_SPEED * self.frameTime
         elif self.Fade_In and self.Num_opacify < 1.0:
             self.Num_opacify += self.FADE_SPEED * self.frameTime
-        if self.Num_opacify < 0.0: self.Num_opacify = 0.0
-        elif self.Num_opacify > 1.0: self.Num_opacify = 1.0
+        if self.Num_opacify < 0.0: self.Num_opacify = 0.0; self.Fade_Out = False
+        elif self.Num_opacify > 1.0: self.Num_opacify = 1.0; self.Fade_In = False
 
         # 잔상
         if self.draw_Previmages:
@@ -210,10 +210,10 @@ class CObject:
                 prevFrame = self.PrevIMAGEs[self.count_PrevFrame - (PrevPoint + 1)].Frame
                 (PrevX, PrevY) = (self.PrevIMAGEs[self.count_PrevFrame - (PrevPoint + 1)].x, self.PrevIMAGEs[self.count_PrevFrame - (PrevPoint + 1)].y)
                 if self.move_state:
-                    self.moveimage[self.moveimage_index].property.opacify((PrevPoint + 1.0) / (len(self.PrevIMAGEs) * 2) * self.Num_opacify)
+                    self.moveimage[self.moveimage_index].property.opacify((PrevPoint + 1.0) / (len(self.PrevIMAGEs) * 3) * self.Num_opacify)
                     self.moveimage[self.moveimage_index].property.clip_draw(prevFrame * self.MoveFrameWidth, 0, self.MoveFrameWidth, self.MoveFrameHeight, PrevX, PrevY, self.Size_Width, self.Size_Height)
                 elif self.idle_state:
-                    self.idleimage[self.idleimage_index].property.opacify((PrevPoint + 1.0) / (len(self.PrevIMAGEs) * 2) * self.Num_opacify)
+                    self.idleimage[self.idleimage_index].property.opacify((PrevPoint + 1.0) / (len(self.PrevIMAGEs) * 3) * self.Num_opacify)
                     self.idleimage[self.idleimage_index].property.clip_draw(prevFrame * self.idleFrameWidth, 0, self.idleFrameWidth, self.idleFrameHeight, PrevX, PrevY, self.Size_Width, self.Size_Height)
 
         # 객체 상태에 따른 이미지

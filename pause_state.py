@@ -1,5 +1,6 @@
 from pico2d import *
 import game_framework
+import GameMusic
 import Object
 
 name = "PauseState"
@@ -38,6 +39,7 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
+            GameMusic.Play_BGM()
             game_framework.pop_state()
     pass
 

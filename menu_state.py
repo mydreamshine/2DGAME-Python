@@ -1,8 +1,7 @@
 from pico2d import *
-import pygame
 import game_framework
 import GameTime
-import main_state
+import Stage1
 import title_state
 import Object
 
@@ -24,7 +23,8 @@ select_into = NEWSTART
 
 
 def DeleteObject():
-    global selector, menu1, menu2, whitebar1, whitebar2, info
+    global fade, selector, menu1, menu2, whitebar1, whitebar2, info
+    if fade != None: del(fade); fade = None
     if selector != None: del(selector); selector = None
     if menu1 != None: del(menu1); menu1 = None
     if menu2 != None: del (menu2); menu2 = None
@@ -35,17 +35,12 @@ def DeleteObject():
 
 def enter():
     GameTime.init_time()
+    title_state.ReCreateObject()
     global accelaration_x
     global scrollmenu
     scrollmenu = True
 
     global fade, selector, menu1, menu2, whitebar1, whitebar2, info
-    if title_state.BGM == None:
-        pygame.init()
-        pygame.mixer.init()
-        title_state.BGM = pygame.mixer.Sound('Data\\Sound\\title_bgm.wav')
-        title_state.BGM.play()
-
     fade = Object.CObject(400.0, 300.0)
     fade.Apped_idleimage('Data\\Graphic\\Effect\\Fade.png')
     fade.Num_opacify = 0.0
@@ -98,8 +93,6 @@ def handle_events():
             title_state.DeleteObject()
             DeleteObject()
             game_framework.quit()
-        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
-            game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
             if selector.y == menu1.y + 10: select_into = NEWSTART
             elif selector.y == menu2.y + 10: select_into = CONTINUE
@@ -143,11 +136,10 @@ def draw():
             selector.draw()
             info.draw()
 
-        if fade.Num_opacify == 1.0:
-            if select_into == NEWSTART: game_framework.change_state(main_state)
         if fade.Fade_In:
             fade.draw()
-            print(fade.Num_opacify)
+        if fade.Num_opacify == 1.0:
+            if select_into == NEWSTART: game_framework.change_state(Stage1)
     update_canvas()
     pass
 
@@ -159,24 +151,24 @@ def update():
 
     if selector != None and menu1 != None and menu2 != None and whitebar1 != None and whitebar2 != None and info != None:
         # 메뉴 이동
-        add_speed = 50.0 if fade.Fade_In else 0.0
+        add_speed = 30.0 if fade.Fade_In else 0.0
         if menu1.y < 400.0: menu1.y = 400.0; menu1.Set_moveSpeed(0.0, 0.0)
         elif menu1.RUN_SPEED_KMPH_y != 0.0:
-            menu1.Set_moveSpeed(0.0, menu1.RUN_SPEED_KMPH_y + (20.0 + add_speed) * GameTime.actiontime_frame)
-            menu1.Move()
+            menu1.Set_moveSpeed(0.0, menu1.RUN_SPEED_KMPH_y + (19.0 + add_speed) * GameTime.actiontime_frame)
+        menu1.Move()
         if menu2.y > 200.0: menu2.y = 200.0; menu2.Set_moveSpeed(0.0, 0.0)
         elif menu2.RUN_SPEED_KMPH_y != 0.0:
-            menu2.Set_moveSpeed(0.0, menu2.RUN_SPEED_KMPH_y - (38.0 + add_speed) * GameTime.actiontime_frame)
-            menu2.Move()
+            menu2.Set_moveSpeed(0.0, menu2.RUN_SPEED_KMPH_y - (34.0 + add_speed) * GameTime.actiontime_frame)
+        menu2.Move()
 
         if whitebar1.y < 370.0: whitebar1.y = 370.0; whitebar1.Set_moveSpeed(0.0, 0.0)
         elif whitebar1.RUN_SPEED_KMPH_y != 0.0:
-            whitebar1.Set_moveSpeed(0.0, whitebar1.RUN_SPEED_KMPH_y + (26.0 + add_speed) * GameTime.actiontime_frame)
-            whitebar1.Move()
+            whitebar1.Set_moveSpeed(0.0, whitebar1.RUN_SPEED_KMPH_y + (25.0 + add_speed) * GameTime.actiontime_frame)
+        whitebar1.Move()
         if whitebar2.y > 170.0: whitebar2.y = 170.0; whitebar2.Set_moveSpeed(0.0, 0.0)
         elif whitebar2.RUN_SPEED_KMPH_y != 0.0:
-            whitebar2.Set_moveSpeed(0.0, whitebar2.RUN_SPEED_KMPH_y - (30.0 + add_speed) * GameTime.actiontime_frame)
-            whitebar2.Move()
+            whitebar2.Set_moveSpeed(0.0, whitebar2.RUN_SPEED_KMPH_y - (28.0 + add_speed) * GameTime.actiontime_frame)
+        whitebar2.Move()
 
         # fade 활성화
         fade.Set_ActiveTime()
