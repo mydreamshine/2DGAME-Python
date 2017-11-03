@@ -4,20 +4,29 @@ import os
 
 from pico2d import *
 import game_framework
-import GameTime
-import GameMusic
+
 import pause_state
 import gameover_state
+
+import GameTime
+import GameMusic
+
 import Object
+import CollisionCheck
+import Phisics
+
+event = None
 
 name = "Stage1"
 fade = None
 character = None
 grass = None
+Canvas_SIZE = None
 
-GRAVITY = 9.8
-Acceleration = 0.2
-MaxSpeed = 10.0
+
+Acceleration = 2.0
+MaxSpeed = 30.0
+JumpSpeed = 90.0
 JUMP = False
 DOUBLE_JUMP = False
 
@@ -25,20 +34,23 @@ DOUBLE_JUMP = False
 def enter():
     GameTime.init_time()
     GameMusic.Play_Stage()
+
+    global Canvas_SIZE
+    Canvas_SIZE = CollisionCheck.Rect(0.0, get_canvas_height(), get_canvas_width(), 0.0)
+
     global fade, character, grass
-
-    global JUMP, DOUBLE_JUMP
-    JUMP = False
-    DOUBLE_JUMP = False
-
     fade = Object.CObject(400.0, 300.0)
     fade.Apped_idleimage('Data\\Graphic\\Effect\\Fade.png')
     fade.Active_Fade_Out()
 
-    character = Object.CObject(40.0, 90.0)
+    global JUMP, DOUBLE_JUMP
+    character = Object.CObject(400.0, 300.0)
     character.Apped_moveimage('Data\\Graphic\\Instance\\Character.png')
     character.Apped_idleimage('Data\\Graphic\\Instance\\Character.png')
     character.Draw_PrevImages(True, 10)
+    JUMP = False
+    DOUBLE_JUMP = False
+
     grass = Object.CObject(400.0, 30.0)
     grass.Apped_idleimage('Data\\Graphic\\Background\\grass.png')
     pass
@@ -65,6 +77,7 @@ def resume():
 
 
 def handle_events():
+    global event
     global fade, character
     events = get_events()
     for event in events:
@@ -73,13 +86,15 @@ def handle_events():
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
             GameMusic.Stop_BGM()
             game_framework.push_state(pause_state)
-        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_BACKSPACE):
+        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_BACKSPACE): # GameOver씬 테스트용
             fade.Active_Fade_In()
-        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_p):
+        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_p): # 캐릭터 잔상 On/Off
             if character.draw_Previmages: character.Draw_PrevImages(False)
             else: character.Draw_PrevImages(True)
-        elif event.type == SDL_MOUSEMOTION:
-            character.Set_Pos(event.x, 599 - event.y)
+        #elif event.type == SDL_MOUSEMOTION:
+            #character.Set_Pos(event.x, 599 - event.y)
+
+
     pass
 
 
@@ -91,9 +106,36 @@ def update_ActiveTime():
 
 
 def update():
-    global fade, character
+    global event
+    global Canvas_SIZE
+    global fade, character, grass
+    global Acceleration, MaxSpeed, JUMP, DOUBLE_JUMP
+
     if fade != None: fade.Set_ActiveTime()
-    character.Move()
+
+    # 캐릭터 물리(가속, 관성, 탄성, 중력)
+    if event != None:
+        if (event.type, event.key) == (SDL_KEYDOWN, SDLK_RIGHT):  # 캐릭터 오른쪽으로 가속
+            Phisics.Apply_Accelaration_X(character, Acceleration, MaxSpeed)
+        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_LEFT):  # 캐릭터 왼쪽으로 가속
+            Phisics.Apply_Accelaration_X(character, -Acceleration, MaxSpeed)
+        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_SPACE):  # 캐릭터 점프
+            if not JUMP:
+                Phisics.Apply_Jump(character, JumpSpeed)
+                DOUBLE_JUMP = True if JUMP else False
+                JUMP = True
+        elif (event.type, event.key) == (SDL_KEYUP, SDLK_SPACE):  # 캐릭터 점프
+            JUMP = False
+        else:
+            Phisics.Apply_Friction_X(character) # 이동속도 감속
+    Phisics.Apply_GravityField(character) # 중력장 적용
+    character.Move()# 캐릭터 이동
+
+    # 충돌체크
+    if CollisionCheck.Collision_MoveWithHold(character, grass):
+        JUMP, DOUBLE_JUMP = False, False
+    CollisionCheck.Collsion_WndBoundary(character, Canvas_SIZE)
+
     GameTime.update_time()
     pass
 

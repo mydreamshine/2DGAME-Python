@@ -119,6 +119,8 @@ class CObject:
         self.RUN_SPEED_KMPH_x, self.RUN_SPEED_KMPH_y = Speed_x, Speed_y  # 추상적 객체 속도
 
         # 속도 최저값 조정
+        round(self.RUN_SPEED_PPS_x, 4)
+        round(self.RUN_SPEED_PPS_y, 4)
         self.RUN_SPEED_KMPH_x = 0.0 if abs(self.RUN_SPEED_KMPH_x) < 0.001 else self.RUN_SPEED_KMPH_x
         self.RUN_SPEED_KMPH_y = 0.0 if abs(self.RUN_SPEED_KMPH_y) < 0.001 else self.RUN_SPEED_KMPH_y
 
@@ -177,6 +179,16 @@ class CObject:
     # 크기 지정
     def Size(self, w, h):
         self.Size_Width, self.Size_Height = w, h
+
+    # 오브젝트의 Boundary 위치
+    def Left(self):
+        return self.x - self.Size_Width / 2
+    def Top(self):
+        return self.y + self.Size_Height / 2
+    def Right(self):
+        return self.x + self.Size_Width / 2
+    def Bottom(self):
+        return self.y - self.Size_Height / 2
 
     def Scale(self, valScale = 1.0):
         self.Size_Width = (self.MoveFrameWidth if self.move_state else self.idleFrameWidth) * valScale
