@@ -1,4 +1,5 @@
 from pico2d import *
+import Phisics
 
 
 class CImage:
@@ -28,6 +29,12 @@ class CObject:
         # 활동 플래그
         self.idle_state = True # 대기 상태(이동하지 않는 상태)
         self.move_state = False # 이동하는 상태
+        self.nonFriction = False #비마찰 운동
+        self.Accel_left_state = False # 왼쪽으로 가속중인 상태
+        self.Accel_right_state = False  # 왼쪽으로 가속중인 상태
+        # 점프 플래그
+        self.JUMP = False
+        self.DOUBLEJUMP = False
 
         # 이동 및 프레임 재생 속도
         self.RUN_SPEED_KMPH_x, self.RUN_SPEED_KMPH_y = 0.0, 0.0 # 추상적 객체 속도
@@ -154,6 +161,13 @@ class CObject:
 
     # 지정된 이동속도에 따라 이동
     def Move(self):
+        if self.Accel_left_state: # 왼쪽으로 가속
+            Phisics.Apply_Accelaration_X(self, -1)
+        elif self.Accel_right_state: # 오른쪽으로 가속
+            Phisics.Apply_Accelaration_X(self, 1)
+        elif not self.nonFriction:
+            Phisics.Apply_Friction_X(self)  # 이동속도 감속
+
         distance_x = self.RUN_SPEED_PPS_x * self.frameTime
         distance_y = self.RUN_SPEED_PPS_y * self.frameTime
 
@@ -235,3 +249,29 @@ class CObject:
         elif self.idle_state:
             self.idleimage[self.idleimage_index].property.opacify(self.Num_opacify)
             self.idleimage[self.idleimage_index].property.clip_draw(self.current_Frame * self.idleFrameWidth, 0, self.idleFrameWidth, self.idleFrameHeight, self.x, self.y, self.Size_Width, self.Size_Height)
+
+
+
+    def handle_events(self, event):
+        # 캐릭터 잔상 On/Off
+        if (event.type, event.key) == (SDL_KEYDOWN, SDLK_p):
+            if self.draw_Previmages: self.Draw_PrevImages(False)
+            else: self.Draw_PrevImages(True)
+
+        # 캐릭터 물리(가속, 관성, 탄성, 중력)
+        if (event.type, event.key) == (SDL_KEYDOWN, SDLK_RIGHT):  # 캐릭터 오른쪽으로 가속
+            self.Accel_right_state = True
+            self.Accel_left_state = False
+        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_LEFT):  # 캐릭터 왼쪽으로 가속
+            self.Accel_right_state = False
+            self.Accel_left_state = True
+        elif (event.type, event.key) == (SDL_KEYUP, SDLK_LEFT):
+            self.Accel_left_state = False
+        elif (event.type, event.key) == (SDL_KEYUP, SDLK_RIGHT):
+            self.Accel_right_state = False
+
+        if (event.type, event.key) == (SDL_KEYDOWN, SDLK_SPACE):  # 캐릭터 점프
+            if not self.JUMP or not self.DOUBLEJUMP:
+                Phisics.Apply_Jump(self)
+                self.DOUBLEJUMP = True if self.JUMP else False
+                self.JUMP = True

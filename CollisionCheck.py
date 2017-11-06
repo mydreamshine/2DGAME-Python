@@ -1,7 +1,7 @@
 from pico2d import *
 import Object
 
-COLLSION_FRICTION = 0.3 # 탄성 계수
+COLLSION_FRICTION = 0.5 # 탄성 계수
 
 
 class Rect:
@@ -47,6 +47,10 @@ def Collision_MoveWithHold(Moved_Object, Hold_Object):
             #탄성 처리
             Moved_Object.RUN_SPEED_KMPH_y *= -COLLSION_FRICTION
             Moved_Object.Set_moveSpeed(Moved_Object.RUN_SPEED_KMPH_x, Moved_Object.RUN_SPEED_KMPH_y)
+
+            #점프 플래그 초기화
+            Moved_Object.JUMP = False
+            Moved_Object.DOUBLEJUMP = False
         #좌우 체크
         else:
             if intersect.left == Hold_Object.Left():

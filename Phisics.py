@@ -2,8 +2,12 @@ from pico2d import *
 import GameTime
 import Object
 
-GRAVITY = -9.8 * 3
+GRAVITY = -9.8 * 1.2
 FRICTION = 0.95
+
+Acceleration = 2.0
+MaxSpeed = 30.0
+JumpSpeed = 90.0
 
 def Apply_GravityField(Object):
     global GRAVITY
@@ -18,14 +22,16 @@ def Apply_Friction_X(Object):
     Object.Set_moveSpeed(Object.RUN_SPEED_KMPH_x, Object.RUN_SPEED_KMPH_y)
 
 
-def Apply_Jump(Object, JumpSpeed):
+def Apply_Jump(Object):
+    global JumpSpeed
     Object.RUN_SPEED_KMPH_y += JumpSpeed
     Object.Set_moveSpeed(Object.RUN_SPEED_KMPH_x, Object.RUN_SPEED_KMPH_y)
 
 
-def Apply_Accelaration_X(Object, Accelaration, MaxSpeed):
+def Apply_Accelaration_X(Object, Direction):
+    global Acceleration, MaxSpeed
     if abs(Object.RUN_SPEED_KMPH_x) < MaxSpeed:
-        Object.RUN_SPEED_KMPH_x += Accelaration * GameTime.action_Factor()
+        Object.RUN_SPEED_KMPH_x += Direction * Acceleration * GameTime.action_Factor()
     else:
-        Object.RUN_SPEED_KMPH_x = (Accelaration / abs(Accelaration)) * MaxSpeed * GameTime.action_Factor()
+        Object.RUN_SPEED_KMPH_x = Direction * MaxSpeed * GameTime.action_Factor()
     Object.Set_moveSpeed(Object.RUN_SPEED_KMPH_x, Object.RUN_SPEED_KMPH_y)

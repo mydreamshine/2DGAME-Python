@@ -57,20 +57,24 @@ def enter():
     background1 = Object.CObject(400.0, 300.0)
     background1.Apped_moveimage('Data\\Graphic\\Background\\title.png')
     background1.Set_moveSpeed(-8.0)
+    background1.nonFriction = True
 
     right = background1.x + background1.Size_Width
 
     background2 = Object.CObject(right, 300.0)
     background2.Apped_moveimage('Data\\Graphic\\Background\\title.png')
     background2.Set_moveSpeed(-8.0)
+    background2.nonFriction = True
 
     whitebar = Object.CObject(400.0, 465.0)
     whitebar.Apped_idleimage('Data\\Graphic\\Menu\\white_bar.png')
     whitebar.Apped_moveimage('Data\\Graphic\\Menu\\white_bar.png')
+    whitebar.nonFriction = True
 
     game_name = Object.CObject(400.0, 300.0)
     game_name.Apped_idleimage('Data\\Graphic\\Menu\\game_name.png')
     game_name.Apped_moveimage('Data\\Graphic\\Menu\\game_name.png')
+    game_name.nonFriction = True
 
     info = Object.CObject(400.0, 100.0)
     info.Apped_idleimage('Data\\Graphic\\Menu\\info_title.png')
