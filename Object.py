@@ -75,7 +75,7 @@ class CObject:
         if self.PrevIMAGEs != None: del (self.PrevIMAGEs)
 
     # 이동 이미지 소스 등록 (이미지 경로, 애니메이션 프레임 갯수)
-    def Apped_moveimage(self, path_image, count_animated_frames = 1):
+    def Append_moveimage(self, path_image, count_animated_frames = 1):
         self.moveimage.append(CImage(path_image, count_animated_frames))
         self.moveimage_index = len(self.moveimage) - 1
         self.FRAMES_PER_ACTION_move = count_animated_frames
@@ -83,7 +83,7 @@ class CObject:
         self.MoveFrameHeight = self.Size_Height = self.moveimage[-1].property.h
 
     # idle 이미지 소스 등록 (이미지 경로, 애니메이션 프레임 갯수)
-    def Apped_idleimage(self, path_image, count_animated_frames = 1):
+    def Append_idleimage(self, path_image, count_animated_frames = 1):
         self.idleimage.append(CImage(path_image, count_animated_frames))
         self.idleimage_index = len(self.idleimage) - 1
         self.FRAMES_PER_ACTION_idle = count_animated_frames

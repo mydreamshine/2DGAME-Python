@@ -45,12 +45,14 @@ def enter():
     background1 = Object.CObject(400.0, 300.0)
     background1.Apped_moveimage('Data\\Graphic\\Background\\title.png')
     background1.Set_moveSpeed(-8.0)
+    background1.nonFriction = True
 
     right = background1.x + background1.Size_Width
 
     background2 = Object.CObject(right, 300.0)
     background2.Apped_moveimage('Data\\Graphic\\Background\\title.png')
     background2.Set_moveSpeed(-8.0)
+    background2.nonFriction = True
 
     whitebar = Object.CObject(600.0, -210.0)
     whitebar.Apped_idleimage('Data\\Graphic\\Menu\\white_bar_mini.png')
@@ -68,6 +70,7 @@ def enter():
     selector = Object.CObject(menu.x - menu.Size_Width / 2 - 30, menu.y)
     selector.Apped_idleimage('Data\\Graphic\\Menu\\selector.png')
     selector.Apped_moveimage('Data\\Graphic\\Menu\\selector.png')
+    selector.nonFriction = True
     pass
 
 
@@ -156,9 +159,9 @@ def update():
         # Selector 좌우 이동
         if not scrollmenu:
             if selector.RUN_SPEED_KMPH_x < maxVelocity:
-                selector.RUN_SPEED_KMPH_x *= -1
+                selector.RUN_SPEED_KMPH_x = -maxVelocity
             if selector.RUN_SPEED_KMPH_x >= 0.0 and selector.RUN_SPEED_KMPH_x - accelaration_x * GameTime.actiontime_frame < 0.0:
-                    selector.Set_Pos(menu.x - menu.Size_Width / 2 - 5, menu.y + 10)
+                selector.Set_Pos(menu.x - menu.Size_Width / 2 - 5, menu.y + 10)
             selector.Set_moveSpeed(selector.RUN_SPEED_KMPH_x - accelaration_x * GameTime.actiontime_frame)
             selector.Move()
 

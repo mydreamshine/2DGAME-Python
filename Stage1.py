@@ -19,37 +19,49 @@ event = None
 name = "Stage1"
 fade = None
 character = None
-grass = None
+BackGround = None
 Canvas_SIZE = None
+Ground_Size = None
+Ground = []
+Ground_Shade = []
 
 
 def enter():
     GameTime.init_time()
     GameMusic.Play_Stage()
+    global fade, character, BackGround
+    global Canvas_SIZE, Ground_Size
+    global Ground, Ground_Shade
 
-    global Canvas_SIZE
+    BackGround = Object.CObject(400.0, 300.0)
+    BackGround.Append_idleimage('Data\\Graphic\\Background\\background.png')
+
     Canvas_SIZE = CollisionCheck.Rect(0.0, get_canvas_height(), get_canvas_width(), 0.0)
+    Ground_Size = CollisionCheck.Rect(0.0, get_canvas_height(), BackGround.Right(), 45.0)
 
-    global fade, character, grass
+    Ground.append(Object.CObject(650.0, 150.0))
+    Ground[0].Append_idleimage('Data\\Graphic\\Background\\Tile_sky_Arrival.png')
+    Ground_Shade.append(Object.CObject(650.0, 45.0))
+    Ground_Shade[0].Append_idleimage('Data\\Graphic\\Background\\Tile_sky_Arrival_Shade.png')
+
     fade = Object.CObject(400.0, 300.0)
-    fade.Apped_idleimage('Data\\Graphic\\Effect\\Fade.png')
+    fade.Append_idleimage('Data\\Graphic\\Effect\\Fade.png')
     fade.Active_Fade_Out()
 
     character = Object.CObject(400.0, 300.0)
-    character.Apped_moveimage('Data\\Graphic\\Instance\\Character.png')
-    character.Apped_idleimage('Data\\Graphic\\Instance\\Character.png')
+    character.Append_moveimage('Data\\Graphic\\Instance\\Character.png')
+    character.Append_idleimage('Data\\Graphic\\Instance\\Character.png')
     character.Draw_PrevImages(True, 10)
 
-    grass = Object.CObject(400.0, 30.0)
-    grass.Apped_idleimage('Data\\Graphic\\Background\\grass.png')
     pass
 
 
 def DeleteObject():
-    global fade, character, grass
+    global fade, Canvas_SIZE, character, BackGround
     if fade != None: del(fade); fade = None
+    if Canvas_SIZE != None: del(Canvas_SIZE); Canvas_SIZE = None
     if character != None: del(character); character = None
-    if grass != None: del(grass); grass = None
+    if BackGround != None: del(BackGround); BackGround = None
 
 
 def exit():
@@ -81,8 +93,6 @@ def handle_events():
             character.handle_events(event)
         #elif event.type == SDL_MOUSEMOTION:
             #character.Set_Pos(event.x, 599 - event.y)
-
-
     pass
 
 
@@ -96,15 +106,27 @@ def update_ActiveTime():
 def update():
     global event
     global Canvas_SIZE
-    global fade, character, grass
+    global fade, character, BackGround, Ground_Size
+    global Ground
 
     if fade != None: fade.Set_ActiveTime()
 
     Phisics.Apply_GravityField(character)  # 중력장 적용
     character.Move()# 캐릭터 이동
 
+    # 배경 원근이동
+    Posx_factor = ((BackGround.Size_Width - Canvas_SIZE.right) / 6) * ((400.0 - character.x) / 400.0)
+    BackGround.Set_Pos(400.0 + Posx_factor, BackGround.y)
+
     # 충돌체크 및 처리
-    CollisionCheck.Collision_MoveWithHold(character, grass)
+    for ground in Ground:
+        if character.Left() < ground.Right() - 10 and character.Right() > ground.Left() + 10:
+            if character.Bottom() > ground.y - 10:
+                Ground_Size.bottom = ground.y - 10
+                break
+        else: Ground_Size.bottom = 45.0
+
+    CollisionCheck.Collsion_WndBoundary(character, Ground_Size)
     CollisionCheck.Collsion_WndBoundary(character, Canvas_SIZE)
 
     GameTime.update_time()
@@ -112,9 +134,21 @@ def update():
 
 
 def Scene_draw():
-    global fade, character, grass
-    grass.draw()
+    global fade, character, BackGround
+    global Ground, Ground_Shade
+
+    BackGround.draw()
+
+    # Tile
+    for ground in Ground:
+        ground.draw()
+
     character.draw()
+
+    # Tile Shade
+    for ground_shade in Ground_Shade:
+        ground_shade.draw()
+
 
     # Fade
     prevFade_In = fade.Fade_In

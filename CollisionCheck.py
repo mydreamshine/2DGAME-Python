@@ -26,7 +26,6 @@ def intersectRect(intersect, Object1, Object2):
 
     return VCollision and HCollision
 
-
 # 충돌처리(사각형)
 def Collision_MoveWithHold(Moved_Object, Hold_Object):
     global COLLSION_FRICTION
@@ -66,15 +65,31 @@ def Collision_MoveWithHold(Moved_Object, Hold_Object):
 
 # 충돌처리(캔버스)
 def Collsion_WndBoundary(Move_Object, Canvas_Boundary):
+    global COLLSION_FRICTION
     if Move_Object.Left() < Canvas_Boundary.left:
         Move_Object.x += Canvas_Boundary.left - Move_Object.Left()
+        # 탄성 처리
+        Move_Object.RUN_SPEED_KMPH_x *= -COLLSION_FRICTION
+        Move_Object.Set_moveSpeed(Move_Object.RUN_SPEED_KMPH_x, Move_Object.RUN_SPEED_KMPH_y)
         return True
     if Move_Object.Top() > Canvas_Boundary.top:
         Move_Object.y -= Move_Object.Top() - Canvas_Boundary.top
+        # 탄성 처리
+        Move_Object.RUN_SPEED_KMPH_y *= -COLLSION_FRICTION
+        Move_Object.Set_moveSpeed(Move_Object.RUN_SPEED_KMPH_x, Move_Object.RUN_SPEED_KMPH_y)
         return True
     if Move_Object.Right() > Canvas_Boundary.right:
         Move_Object.x -= Move_Object.Right() - Canvas_Boundary.right
+        # 탄성 처리
+        Move_Object.RUN_SPEED_KMPH_x *= -COLLSION_FRICTION
+        Move_Object.Set_moveSpeed(Move_Object.RUN_SPEED_KMPH_x, Move_Object.RUN_SPEED_KMPH_y)
         return True
     if Move_Object.Bottom() < Canvas_Boundary.bottom:
         Move_Object.y += Canvas_Boundary.bottom - Move_Object.Bottom()
+        # 탄성 처리
+        Move_Object.RUN_SPEED_KMPH_y *= -COLLSION_FRICTION
+        Move_Object.Set_moveSpeed(Move_Object.RUN_SPEED_KMPH_x, Move_Object.RUN_SPEED_KMPH_y)
+        # 점프 플래그 초기화
+        Move_Object.JUMP = False
+        Move_Object.DOUBLEJUMP = False
         return True

@@ -42,44 +42,44 @@ def enter():
 
     global fade, selector, menu1, menu2, whitebar1, whitebar2, info
     fade = Object.CObject(400.0, 300.0)
-    fade.Apped_idleimage('Data\\Graphic\\Effect\\Fade.png')
+    fade.Append_idleimage('Data\\Graphic\\Effect\\Fade.png')
     fade.Num_opacify = 0.0
 
     menu1 = Object.CObject(600.0, 650.0)
-    menu1.Apped_idleimage('Data\\Graphic\\Menu\\menu1.png')
-    menu1.Apped_idleimage('Data\\Graphic\\Menu\\menu1_select.png')
+    menu1.Append_idleimage('Data\\Graphic\\Menu\\menu1.png')
+    menu1.Append_idleimage('Data\\Graphic\\Menu\\menu1_select.png')
     menu1.Set_idleFrames(0)
-    menu1.Apped_moveimage('Data\\Graphic\\Menu\\menu1.png')
+    menu1.Append_moveimage('Data\\Graphic\\Menu\\menu1.png')
     menu1.Set_moveSpeed(0.0,-35.0)
     menu1.nonFriction = True
 
     selector = Object.CObject(menu1.x - menu1.Size_Width / 2 - 30, menu1.y)
-    selector.Apped_idleimage('Data\\Graphic\\Menu\\selector.png')
-    selector.Apped_moveimage('Data\\Graphic\\Menu\\selector.png')
+    selector.Append_idleimage('Data\\Graphic\\Menu\\selector.png')
+    selector.Append_moveimage('Data\\Graphic\\Menu\\selector.png')
     selector.nonFriction = True
 
     menu2 = Object.CObject(600.0, -80.0)
-    menu2.Apped_idleimage('Data\\Graphic\\Menu\\menu2.png')
-    menu2.Apped_idleimage('Data\\Graphic\\Menu\\menu2_select.png')
+    menu2.Append_idleimage('Data\\Graphic\\Menu\\menu2.png')
+    menu2.Append_idleimage('Data\\Graphic\\Menu\\menu2_select.png')
     menu2.Set_idleFrames(0)
-    menu2.Apped_moveimage('Data\\Graphic\\Menu\\menu2.png')
+    menu2.Append_moveimage('Data\\Graphic\\Menu\\menu2.png')
     menu2.Set_moveSpeed(0.0, 50.0)
     menu2.nonFriction = True
 
     whitebar1 = Object.CObject(600.0, 620.0)
-    whitebar1.Apped_idleimage('Data\\Graphic\\Menu\\white_bar_mini.png')
-    whitebar1.Apped_moveimage('Data\\Graphic\\Menu\\white_bar_mini.png')
+    whitebar1.Append_idleimage('Data\\Graphic\\Menu\\white_bar_mini.png')
+    whitebar1.Append_moveimage('Data\\Graphic\\Menu\\white_bar_mini.png')
     whitebar1.Set_moveSpeed(0.0, -40.0)
     whitebar1.nonFriction = True
 
     whitebar2 = Object.CObject(600.0, -110.0)
-    whitebar2.Apped_idleimage('Data\\Graphic\\Menu\\white_bar_mini.png')
-    whitebar2.Apped_moveimage('Data\\Graphic\\Menu\\white_bar_mini.png')
+    whitebar2.Append_idleimage('Data\\Graphic\\Menu\\white_bar_mini.png')
+    whitebar2.Append_moveimage('Data\\Graphic\\Menu\\white_bar_mini.png')
     whitebar2.Set_moveSpeed(0.0, 45.0)
     whitebar2.nonFriction = True
 
     info = Object.CObject(400.0, 40.0)
-    info.Apped_idleimage('Data\\Graphic\\Menu\\info_menu.png')
+    info.Append_idleimage('Data\\Graphic\\Menu\\info_menu.png')
     pass
 
 

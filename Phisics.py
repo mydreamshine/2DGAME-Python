@@ -2,12 +2,12 @@ from pico2d import *
 import GameTime
 import Object
 
-GRAVITY = -9.8 * 1.2
-FRICTION = 0.95
+GRAVITY = -9.8 * 2
+FRICTION = 0.98
 
 Acceleration = 2.0
 MaxSpeed = 30.0
-JumpSpeed = 90.0
+JumpSpeed = 100.0
 
 def Apply_GravityField(Object):
     global GRAVITY
