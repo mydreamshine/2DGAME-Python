@@ -36,40 +36,40 @@ def enter():
     global gameover, fade, background1, background2, whitebar, menu, scrollmenu, selector
 
     fade = Object.CObject(400.0, 300.0)
-    fade.Apped_idleimage('Data\\Graphic\\Effect\\Fade.png')
+    fade.Append_idleimage('Data\\Graphic\\Effect\\Fade.png')
     fade.Active_Fade_Out()
 
     gameover = Object.CObject(400.0, 300.0)
-    gameover.Apped_idleimage('Data\\Graphic\\Menu\\game_over.png')
+    gameover.Append_idleimage('Data\\Graphic\\Menu\\game_over.png')
 
     background1 = Object.CObject(400.0, 300.0)
-    background1.Apped_moveimage('Data\\Graphic\\Background\\title.png')
+    background1.Append_moveimage('Data\\Graphic\\Background\\title.png')
     background1.Set_moveSpeed(-8.0)
     background1.nonFriction = True
 
     right = background1.x + background1.Size_Width
 
     background2 = Object.CObject(right, 300.0)
-    background2.Apped_moveimage('Data\\Graphic\\Background\\title.png')
+    background2.Append_moveimage('Data\\Graphic\\Background\\title.png')
     background2.Set_moveSpeed(-8.0)
     background2.nonFriction = True
 
     whitebar = Object.CObject(600.0, -210.0)
-    whitebar.Apped_idleimage('Data\\Graphic\\Menu\\white_bar_mini.png')
-    whitebar.Apped_moveimage('Data\\Graphic\\Menu\\white_bar_mini.png')
+    whitebar.Append_idleimage('Data\\Graphic\\Menu\\white_bar_mini.png')
+    whitebar.Append_moveimage('Data\\Graphic\\Menu\\white_bar_mini.png')
     whitebar.Set_moveSpeed(0.0, 45.0)
 
     scrollmenu = True
     menu = Object.CObject(600.0, -180.0)
-    menu.Apped_idleimage('Data\\Graphic\\Menu\\menu2.png')
-    menu.Apped_idleimage('Data\\Graphic\\Menu\\menu2_select.png')
+    menu.Append_idleimage('Data\\Graphic\\Menu\\menu2.png')
+    menu.Append_idleimage('Data\\Graphic\\Menu\\menu2_select.png')
     menu.Set_idleFrames(0)
-    menu.Apped_moveimage('Data\\Graphic\\Menu\\menu2.png')
+    menu.Append_moveimage('Data\\Graphic\\Menu\\menu2.png')
     menu.Set_moveSpeed(0.0, 50.0)
 
     selector = Object.CObject(menu.x - menu.Size_Width / 2 - 30, menu.y)
-    selector.Apped_idleimage('Data\\Graphic\\Menu\\selector.png')
-    selector.Apped_moveimage('Data\\Graphic\\Menu\\selector.png')
+    selector.Append_idleimage('Data\\Graphic\\Menu\\selector.png')
+    selector.Append_moveimage('Data\\Graphic\\Menu\\selector.png')
     selector.nonFriction = True
     pass
 

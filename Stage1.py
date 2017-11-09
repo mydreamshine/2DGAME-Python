@@ -57,11 +57,14 @@ def enter():
 
 
 def DeleteObject():
+    global Ground, Ground_Shade
     global fade, Canvas_SIZE, character, BackGround
     if fade != None: del(fade); fade = None
     if Canvas_SIZE != None: del(Canvas_SIZE); Canvas_SIZE = None
     if character != None: del(character); character = None
     if BackGround != None: del(BackGround); BackGround = None
+    while(len(Ground) > 0): Ground.pop()
+    while (len(Ground_Shade) > 0): Ground_Shade.pop()
 
 
 def exit():
