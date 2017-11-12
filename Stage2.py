@@ -6,7 +6,6 @@ import game_framework
 
 import pause_state
 import gameover_state
-import Stage2
 
 import GameTime
 import GameMusic
@@ -17,7 +16,7 @@ import Phisics
 
 event = None
 
-name = "Stage1"
+name = "Stage2"
 fade = None
 character = None
 BackGround = None
@@ -27,9 +26,6 @@ Ground = []
 Ground_Shade = []
 Arrival = None
 Arrival_Shade = None
-
-stage_name = None
-stage_number = None
 
 Gameover = False
 Nextstage_in = False
@@ -58,7 +54,7 @@ def enter():
     Ground_Shade[0].Append_idleimage('Data\\Graphic\\Background\\Tile_sky_Shade.png')
     Arrival_Shade = Object.CObject()
     Arrival_Shade.Append_idleimage('Data\\Graphic\\Background\\Tile_sky_Arrival_Shade.png')
-    Arrival_Shade.Set_Pos(Ground_Shade[0].Right() - Arrival_Shade.Size_Width / 2, 45.0)
+    Arrival_Shade.Set_Pos(Ground_Shade[0].Right() - Arrival_Shade.Size_Width / 2, 150.0)
 
     fade = Object.CObject(400.0, 300.0)
     fade.Append_idleimage('Data\\Graphic\\Effect\\Fade.png')
@@ -192,7 +188,7 @@ def Scene_draw():
     # Fade상태에 따른 게임씬(Scene) 탈출
     if prevFade_In and not fade.Fade_In:
         if Nextstage_in:
-            game_framework.change_state(Stage2)
+            game_framework.push_state(gameover_state)
 
 
 def draw():
