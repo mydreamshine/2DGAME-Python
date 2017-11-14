@@ -4,5 +4,5 @@ import Stage1
 import title_state
 
 open_canvas()
-game_framework.run(title_state)
+game_framework.run(Stage1)
 close_canvas()

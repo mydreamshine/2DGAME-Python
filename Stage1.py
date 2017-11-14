@@ -28,11 +28,37 @@ Ground_Shade = []
 Arrival = None
 Arrival_Shade = None
 
-stage_name = None
-stage_number = None
+class info:
+    def __init__(self):
+        self.name = None
+        self.x, self.y = 0.0, 0.0
+        self.image = None
+        self.left, self.bottom = 0, 0
+        self.width, self.height = 0, 0
+    def draw(self):
+        self.image.clip_draw(self.left, self.bottom, self.width, self.height, self.x, self.y)
+
 
 Gameover = False
 Nextstage_in = False
+
+# 구현 해야할 사항
+# 각 변수들로 되어 있는 오브젝트들을 리스트로 관리
+# json을 이용하여 맵을 형성하고 오브젝트를 배치.
+# 각 Stage별로 fade, info, 캐릭터 배치
+# Stage1: Ground 1개, Arrival 1개
+# Stage2: Ground 3개, Arrival 1개
+# Stage3: 신호등 1개, Ground 1개, Arrival 1개
+# Stage4: underGround 1개, Ground 2개, Arrival 1개
+# Stage5: underGround 1개, movedGround 1개, Ground 2개, Arrival 1개
+# Stage6: 신호등 1개, underGround 1개, movedGround 1개, Ground 2개, Arrival 1개
+# Stage7 이후 부터 슬라이드 오버래핑 구현 요
+# Stage7: thorn 1개, Ground 2개, Arrival 1개 (슬라이드 오버래핑 적용)
+# Stage8: underGround 1개, thorn 6개, Ground 5개, movedGround 2개, Arrival 1개 (슬라이드 오버래핑 적용)
+# Stage8: thorn 6개, Ground 5개, invisible Wall 3개, Arrival 1개 (슬라이드 오버래핑 적용)
+# Stage9: underGround 1개, Ray 5개, Ground 3개, movedGround 2개, Arrival 1개
+# Stage10: underGround 1개, Ray 5개, invisible Wall 2개, movedGround 1개, Arrival 1개 (슬라이드 오버래핑 적용)
+# Final Stage: 신호등 1개, underGround 1개, Ray 3개, invisible Wall 4개, movedGround 1개, Arrival 1개 (슬라이드 오버래핑 적용)
 
 
 def enter():
@@ -44,6 +70,7 @@ def enter():
 
     BackGround = Object.CObject(400.0, 300.0)
     BackGround.Append_idleimage('Data\\Graphic\\Background\\background.png')
+    image = load_image('Data\\Graphic\\Background\\background.png')
 
     Canvas_SIZE = CollisionCheck.Rect(0.0, get_canvas_height(), get_canvas_width(), 0.0)
     Ground_Size = CollisionCheck.Rect(0.0, get_canvas_height(), BackGround.Right(), 45.0)
@@ -105,6 +132,7 @@ def handle_events():
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
+            GameMusic.Delete()
             game_framework.quit()
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
             GameMusic.Stop_BGM()
@@ -121,7 +149,7 @@ def handle_events():
     pass
 
 
-def update_ActiveTime():
+def update_ActiveTime(): # 움직이는 물체에 대한 활동주기 갱신
     global fade, character
     fade.Set_ActiveTime()
     character.Set_ActiveTime()
@@ -163,6 +191,7 @@ def update():
 
 
 def Scene_draw():
+    global Gameover, Nextstage_in
     global fade, character, BackGround
     global Ground, Ground_Shade, Arrival, Arrival_Shade
 
@@ -191,6 +220,8 @@ def Scene_draw():
         fade.draw()
     # Fade상태에 따른 게임씬(Scene) 탈출
     if prevFade_In and not fade.Fade_In:
+        if Gameover:
+            game_framework.push_state(gameover_state)
         if Nextstage_in:
             game_framework.change_state(Stage2)
 

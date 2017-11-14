@@ -19,7 +19,7 @@ def Stop_BGM():
 
 
 def Delete():
-    global NONE, TITLE, STAGE, GAMEOVER
+    global NONE
     global State_BGM
     global BGM
     if BGM != None: BGM.stop(); del(BGM); BGM = None
