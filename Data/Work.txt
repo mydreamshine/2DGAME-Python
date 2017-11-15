@@ -1,0 +1,17 @@
+# 구현 해야할 사항
+# 각 변수들로 되어 있는 오브젝트들을 리스트로 관리
+# json을 이용하여 맵을 형성하고 오브젝트를 배치.
+# 각 Stage별로 fade, info, 캐릭터 배치
+# Stage1: Ground 1개, Arrival 1개
+# Stage2: Ground 3개, Arrival 1개
+# Stage3: 신호등 1개, Ground 1개, Arrival 1개
+# Stage4: underGround 1개, Ground 2개, Arrival 1개
+# Stage5: underGround 1개, movedGround 1개, Ground 2개, Arrival 1개
+# Stage6: 신호등 1개, underGround 1개, movedGround 1개, Ground 2개, Arrival 1개
+# Stage7 이후 부터 슬라이드 오버래핑 구현 요
+# Stage7: thorn 1개, Ground 2개, Arrival 1개 (슬라이드 오버래핑 적용)
+# Stage8: underGround 1개, thorn 6개, Ground 5개, movedGround 2개, Arrival 1개 (슬라이드 오버래핑 적용)
+# Stage8: thorn 6개, Ground 5개, invisible Wall 3개, Arrival 1개 (슬라이드 오버래핑 적용)
+# Stage9: underGround 1개, Ray 5개, Ground 3개, movedGround 2개, Arrival 1개
+# Stage10: underGround 1개, Ray 5개, invisible Wall 2개, movedGround 1개, Arrival 1개 (슬라이드 오버래핑 적용)
+# Final Stage: 신호등 1개, underGround 1개, Ray 3개, invisible Wall 4개, movedGround 1개, Arrival 1개 (슬라이드 오버래핑 적용)

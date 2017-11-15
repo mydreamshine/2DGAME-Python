@@ -10,7 +10,7 @@ font = None
 def enter():
     global font
     font = Object.CObject(400.0, 310.0)
-    font.Apped_idleimage('Data\\Graphic\\Effect\\PAUSE.png')
+    font.Append_idleimage('Data\\Graphic\\Effect\\PAUSE.png')
     pass
 
 

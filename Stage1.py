@@ -15,7 +15,8 @@ import Object
 import CollisionCheck
 import Phisics
 
-event = None
+Gameover = False
+Nextstage_in = False
 
 name = "Stage1"
 fade = None
@@ -28,37 +29,46 @@ Ground_Shade = []
 Arrival = None
 Arrival_Shade = None
 
+
 class info:
     def __init__(self):
         self.name = None
         self.x, self.y = 0.0, 0.0
         self.image = None
+        self.row, self.col= 1, 1
         self.left, self.bottom = 0, 0
         self.width, self.height = 0, 0
+
     def draw(self):
-        self.image.clip_draw(self.left, self.bottom, self.width, self.height, self.x, self.y)
+        self.image.clip_draw(self.left + self.width * (self.col - 1) if self.col > 0 else 0, self.bottom + self.height * (self.row - 1) if self.row > 0 else 0, self.width, self.height, self.x, self.y)
 
 
-Gameover = False
-Nextstage_in = False
+info_list = None
 
-# 구현 해야할 사항
-# 각 변수들로 되어 있는 오브젝트들을 리스트로 관리
-# json을 이용하여 맵을 형성하고 오브젝트를 배치.
-# 각 Stage별로 fade, info, 캐릭터 배치
-# Stage1: Ground 1개, Arrival 1개
-# Stage2: Ground 3개, Arrival 1개
-# Stage3: 신호등 1개, Ground 1개, Arrival 1개
-# Stage4: underGround 1개, Ground 2개, Arrival 1개
-# Stage5: underGround 1개, movedGround 1개, Ground 2개, Arrival 1개
-# Stage6: 신호등 1개, underGround 1개, movedGround 1개, Ground 2개, Arrival 1개
-# Stage7 이후 부터 슬라이드 오버래핑 구현 요
-# Stage7: thorn 1개, Ground 2개, Arrival 1개 (슬라이드 오버래핑 적용)
-# Stage8: underGround 1개, thorn 6개, Ground 5개, movedGround 2개, Arrival 1개 (슬라이드 오버래핑 적용)
-# Stage8: thorn 6개, Ground 5개, invisible Wall 3개, Arrival 1개 (슬라이드 오버래핑 적용)
-# Stage9: underGround 1개, Ray 5개, Ground 3개, movedGround 2개, Arrival 1개
-# Stage10: underGround 1개, Ray 5개, invisible Wall 2개, movedGround 1개, Arrival 1개 (슬라이드 오버래핑 적용)
-# Final Stage: 신호등 1개, underGround 1개, Ray 3개, invisible Wall 4개, movedGround 1개, Arrival 1개 (슬라이드 오버래핑 적용)
+
+def create_info():
+    info_file = open('Data\\Bin\\stage1_test.txt', 'r')
+    info_dic = json.load(info_file)
+    info_file.close()
+
+    info_list_source = []
+    for name in info_dic:
+        info_object = info()
+        info_object.name = name
+
+        info_object.image = load_image(info_dic[name]['ImagePath'])
+        info_object.left = info_dic[name]['left']
+        info_object.bottom = info_dic[name]['bottom']
+        info_object.width = info_dic[name]['width']
+        info_object.height = info_dic[name]['height']
+        info_object.row = info_dic[name]['row']
+        info_object.col = info_dic[name]['col']
+        info_object.x = info_dic[name]['x']
+        info_object.y = info_dic[name]['y']
+
+        info_list_source.append(info_object)
+
+    return info_list_source
 
 
 def enter():
@@ -67,6 +77,8 @@ def enter():
     global fade, character, BackGround
     global Canvas_SIZE, Ground_Size
     global Ground, Ground_Shade, Arrival, Arrival_Shade
+    global info_list
+    info_list = create_info()
 
     BackGround = Object.CObject(400.0, 300.0)
     BackGround.Append_idleimage('Data\\Graphic\\Background\\background.png')
@@ -95,6 +107,7 @@ def enter():
     character.Append_moveimage('Data\\Graphic\\Instance\\Character.png')
     character.Append_idleimage('Data\\Graphic\\Instance\\Character.png')
     character.Draw_PrevImages(True, 10)
+    character.AffectedGravity = True
 
     pass
 
@@ -102,6 +115,8 @@ def enter():
 def DeleteObject():
     global Ground, Ground_Shade, Arrival, Arrival_Shade
     global fade, Canvas_SIZE, character, BackGround
+    global info_list
+    info_list.clear()
     if fade != None: del(fade); fade = None
     if Canvas_SIZE != None: del(Canvas_SIZE); Canvas_SIZE = None
     if character != None: del(character); character = None
@@ -126,7 +141,6 @@ def resume():
 
 
 def handle_events():
-    global event
     global fade, character, Arrival
     global Nextstage_in
     events = get_events()
@@ -157,15 +171,16 @@ def update_ActiveTime(): # 움직이는 물체에 대한 활동주기 갱신
 
 
 def update():
-    global event
     global Canvas_SIZE
     global fade, character, BackGround, Ground_Size
     global Ground, Arrival
 
     if fade != None: fade.Set_ActiveTime()
 
-    Phisics.Apply_GravityField(character)  # 중력장 적용
-    character.Move()# 캐릭터 이동
+    # 중력장 적용
+    if character.AffectedGravity:
+        Phisics.Apply_GravityField(character)
+    character.Move() # 캐릭터 이동
 
     # 배경 원근이동
     Posx_factor = ((BackGround.Size_Width - Canvas_SIZE.right) / 6) * ((400.0 - character.x) / 400.0)
@@ -194,6 +209,7 @@ def Scene_draw():
     global Gameover, Nextstage_in
     global fade, character, BackGround
     global Ground, Ground_Shade, Arrival, Arrival_Shade
+    global info_list
 
     BackGround.draw()
 
@@ -213,6 +229,8 @@ def Scene_draw():
     # Arrival_Shade
     Arrival_Shade.draw()
 
+    for infos in info_list:
+        infos.draw()
 
     # Fade
     prevFade_In = fade.Fade_In

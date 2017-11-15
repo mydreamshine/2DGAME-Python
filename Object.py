@@ -20,6 +20,9 @@ class CObject:
     FADE_SPEED = 1.1
 
     def __init__(self, pos_x = 0.0, pos_y = 0.0):
+        # 이름
+        self.name = None
+
         # 위치
         self.x, self.y = pos_x, pos_y
 
@@ -29,7 +32,8 @@ class CObject:
         # 활동 플래그
         self.idle_state = True # 대기 상태(이동하지 않는 상태)
         self.move_state = False # 이동하는 상태
-        self.nonFriction = False #비마찰 운동
+        self.nonFriction = False # 비마찰 운동
+        self.AffectedGravity = False # 중력장 간섭 플래그
         self.Accel_left_state = False # 왼쪽으로 가속중인 상태
         self.Accel_right_state = False  # 왼쪽으로 가속중인 상태
         # 점프 플래그
@@ -249,8 +253,6 @@ class CObject:
         elif self.idle_state:
             self.idleimage[self.idleimage_index].property.opacify(self.Num_opacify)
             self.idleimage[self.idleimage_index].property.clip_draw(self.current_Frame * self.idleFrameWidth, 0, self.idleFrameWidth, self.idleFrameHeight, self.x, self.y, self.Size_Width, self.Size_Height)
-
-
 
     def handle_events(self, event):
         # 캐릭터 잔상 On/Off
