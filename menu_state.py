@@ -50,7 +50,7 @@ def enter():
     menu1.Append_idleimage('Data\\Graphic\\Menu\\menu1_select.png')
     menu1.Set_idleFrames(0)
     menu1.Append_moveimage('Data\\Graphic\\Menu\\menu1.png')
-    menu1.Set_moveSpeed(0.0,-35.0)
+    menu1.Set_moveSpeed(0.0, -35.0)
     menu1.nonFriction = True
 
     selector = Object.CObject(menu1.x - menu1.Size_Width / 2 - 30, menu1.y)

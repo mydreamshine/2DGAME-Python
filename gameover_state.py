@@ -120,7 +120,8 @@ def draw():
         if prevFade_In and not fade.Fade_In:
             game_framework.pop_state()
             if len(game_framework.stack) > 0:
-                game_framework.stack[-1].DeleteObject()
+                Object.DeleteObjects()
+                game_framework.stack[-1].Gameover = False
                 game_framework.stack[-1].enter()
 
     update_canvas()

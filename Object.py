@@ -1,5 +1,34 @@
 from pico2d import *
+import json
 import Phisics
+
+Canvas_SIZE = None
+Ground_Size = None
+
+fade = None
+character = None
+ObjectList = None
+info_list = None
+
+
+class info:
+    def __init__(self):
+        self.name = None
+        self.x, self.y = 0.0, 0.0
+        self.image = None
+        self.row, self.col= 1, 1
+        self.left, self.bottom = 0, 0
+        self.jumpWidth, self.jumpHeight = 0, 0
+        self.width, self.height = 0, 0
+
+    def __del__(self):
+        if self.name != None: del(self.name)
+        if self.image != None: del(self.image)
+
+    def draw(self):
+        self.image.clip_draw(self.left + self.jumpWidth * (self.col - 1) if self.col > 0 else 0,
+                             self.bottom + self.jumpHeight * (self.row - 1) if self.row > 0 else 0,
+                             self.width, self.height, self.x, self.y)
 
 
 class CImage:
@@ -73,10 +102,12 @@ class CObject:
         self.stack_Frame, self.current_Frame = 0.0, 0 # 활동 시간에 따른 프레임 누적, 누적된 프레임에 따른 현재 프레임
         self.count_PrevFrame = 0
         self.frameTime = 0 # 프레임 재생시간
+
     def __del__(self):
-        if len(self.moveimage) > 0: self.moveimage.clear()
-        if len(self.idleimage) > 0: self.idleimage.clear()
+        while len(self.moveimage) > 0: self.moveimage.pop()
+        while len(self.idleimage) > 0: self.idleimage.pop()
         if self.PrevIMAGEs != None: del (self.PrevIMAGEs)
+        if self.name != None: del (self.name)
 
     # 이동 이미지 소스 등록 (이미지 경로, 애니메이션 프레임 갯수)
     def Append_moveimage(self, path_image, count_animated_frames = 1):
@@ -277,3 +308,83 @@ class CObject:
                 Phisics.Apply_Jump(self)
                 self.DOUBLEJUMP = True if self.JUMP else False
                 self.JUMP = True
+
+
+   # 파일포맷에 따른 오브젝트 생성↓
+
+def create_infoFrom(file_path):
+    info_file = open(file_path, 'r')
+    info_dic = json.load(info_file)
+    info_file.close()
+
+    info_list_source = []
+    for name in info_dic:
+        info_object = info()
+        info_object.name = name
+
+        info_object.image = load_image(info_dic[name]['ImagePath'])
+        info_object.left = info_dic[name]['left']
+        info_object.bottom = info_dic[name]['bottom']
+        info_object.width = info_dic[name]['width']
+        info_object.height = info_dic[name]['height']
+        info_object.jumpWidth = info_dic[name]['jumpWidth']
+        info_object.jumpHeight = info_dic[name]['jumpHeight']
+        info_object.row = info_dic[name]['row']
+        info_object.col = info_dic[name]['col']
+        info_object.x = info_dic[name]['x']
+        info_object.y = info_dic[name]['y']
+
+        info_list_source.append(info_object)
+
+    return info_list_source
+
+
+def create_ObjectsFrom(file_path):
+    global fade, character
+    Objects_file = open(file_path, 'r')
+    Objects_dic = json.load(Objects_file)
+    Objects_file.close()
+
+    Object_list_source = {}
+    for name in Objects_dic:
+        Object_source = CObject()
+        Object_source.name = name
+        Object_source.Append_idleimage(Objects_dic[name]['ImagePath'])
+        Object_source.Append_moveimage(Objects_dic[name]['ImagePath'])
+        Object_source.Set_Pos(Objects_dic[name]['x'], Objects_dic[name]['y'])
+        Object_source.nonFriction = True if Objects_dic[name]['nonFriction'] == 1 else False
+        Object_source.AffectedGravity = True if Objects_dic[name]['AffectedGravity'] == 1 else False
+        if Objects_dic[name]['ActiveFadeOut'] == 1:
+            Object_source.Active_Fade_Out()
+        if Objects_dic[name]['ActiveFadeIn'] == 1:
+            Object_source.Num_opacify = 0.0
+            Object_source.Active_Fade_In()
+        if Objects_dic[name]['DrawPrevImage'] == 1:
+            Object_source.Draw_PrevImages(True, Objects_dic[name]['nPrevImage'])
+
+        if Object_source.name == "fade":
+            fade = Object_source
+        elif Object_source.name == "character":
+            character = Object_source
+            character.JUMP = character.DOUBLEJUMP = True
+        else:
+            Object_list_source[name] = Object_source
+
+    return Object_list_source
+
+
+def DeleteObjects():
+    global fade, character, ObjectList, info_list
+    if fade != None: del (fade); fade = None
+    if character != None: del (character); character = None
+    if ObjectList != None:
+        ObjectList.clear()
+        ObjectList = None
+    if info_list != None:
+        while len(info_list) > 0: info_list.pop()
+        info_list = None
+
+def DeleteCanvas():
+    global Canvas_SIZE, Ground_Size
+    if Canvas_SIZE != None: del (Canvas_SIZE); Canvas_SIZE = None
+    if Ground_Size != None: del (Ground_Size); Ground_Size = None
