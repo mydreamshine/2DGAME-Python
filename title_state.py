@@ -35,6 +35,7 @@ def ReCreateObject():
         background1 = Object.CObject(400.0, 300.0)
         background1.Append_moveimage('Data\\Graphic\\Background\\title.png')
         background1.Set_moveSpeed(-8.0)
+        background1.nonFriction = True
 
         right = background1.x + background1.Size_Width
 
@@ -42,6 +43,7 @@ def ReCreateObject():
             background2 = Object.CObject(right, 300.0)
             background2.Append_moveimage('Data\\Graphic\\Background\\title.png')
             background2.Set_moveSpeed(-8.0)
+            background2.nonFriction = True
 
     if game_name == None:
         game_name = Object.CObject(200.0, 300.0)

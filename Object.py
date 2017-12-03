@@ -38,7 +38,7 @@ class CImage:
 
 
 class CFrame:
-    def __init__(self, image_path = None):
+    def __init__(self):
         self.x, self.y = 0, 0
         self.Frame = 0
 
@@ -64,7 +64,7 @@ class CObject:
         self.nonFriction = False # 비마찰 운동
         self.AffectedGravity = False # 중력장 간섭 플래그
         self.Accel_left_state = False # 왼쪽으로 가속중인 상태
-        self.Accel_right_state = False  # 왼쪽으로 가속중인 상태
+        self.Accel_right_state = False  # 오른쪽으로 가속중인 상태
         # 점프 플래그
         self.JUMP = False
         self.DOUBLEJUMP = False
@@ -195,13 +195,13 @@ class CObject:
         self.currentTime += self.frameTime
 
     # 지정된 이동속도에 따라 이동
-    def Move(self):
+    def Move(self, FrictionFactor = 1.0):
         if self.Accel_left_state: # 왼쪽으로 가속
             Phisics.Apply_Accelaration_X(self, -1)
         elif self.Accel_right_state: # 오른쪽으로 가속
             Phisics.Apply_Accelaration_X(self, 1)
         elif not self.nonFriction:
-            Phisics.Apply_Friction_X(self)  # 이동속도 감속
+            Phisics.Apply_Friction_X(self, FrictionFactor)  # 이동속도 감속
 
         distance_x = self.RUN_SPEED_PPS_x * self.frameTime
         distance_y = self.RUN_SPEED_PPS_y * self.frameTime
@@ -342,6 +342,7 @@ def create_infoFrom(file_path):
 def create_ObjectsFrom(file_path):
     global fade, character
     Objects_file = open(file_path, 'r')
+
     Objects_dic = json.load(Objects_file)
     Objects_file.close()
 

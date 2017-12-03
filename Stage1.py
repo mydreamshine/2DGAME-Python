@@ -14,12 +14,16 @@ import Stage2
 Gameover = False
 Nextstage_in = False
 
-name = "Stage1"
+Stagename = "Stage1"
 
 
 def enter():
+    global Stagename
     GameTime.init_time()
     GameMusic.Play_Stage()
+    SaveFile = open('Data\\Bin\\SaveStage.txt', 'w')
+    SaveFile.write(Stagename)
+    SaveFile.close()
     Object.info_list = Object.create_infoFrom('Data\\Bin\\stage1_information.txt')
     Object.ObjectList = Object.create_ObjectsFrom('Data\\Bin\\stage1_Object.txt')
     Object.Ground_Size.right = Object.ObjectList['BackGround'].Right()

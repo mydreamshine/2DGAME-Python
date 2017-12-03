@@ -9,12 +9,12 @@ import Phisics
 
 import pause_state
 import gameover_state
-import Stage3
+import Stage5
 
 Gameover = False
 Nextstage_in = False
 
-Stagename = "Stage2"
+Stagename = "Stage4"
 
 
 def enter():
@@ -24,10 +24,10 @@ def enter():
     SaveFile = open('Data\\Bin\\SaveStage.txt', 'w')
     SaveFile.write(Stagename)
     SaveFile.close()
-    Object.info_list = Object.create_infoFrom('Data\\Bin\\stage2_information.txt')
-    Object.ObjectList = Object.create_ObjectsFrom('Data\\Bin\\stage2_Object.txt')
+    Object.info_list = Object.create_infoFrom('Data\\Bin\\stage4_information.txt')
+    Object.ObjectList = Object.create_ObjectsFrom('Data\\Bin\\stage4_Object.txt')
     Object.Ground_Size.right = Object.ObjectList['BackGround'].Right()
-
+    Object.ObjectList['Ground_Shade1'].Num_opacify = 0.5
 
 def exit():
     Object.DeleteObjects()
@@ -68,14 +68,19 @@ def update_ActiveTime(): # 움직이는 물체에 대한 활동주기 갱신
 
 
 def update():
+    global Gameover
     Object.fade.Set_ActiveTime()
 
     # 중력장 적용
     if Object.character.AffectedGravity:
-        Phisics.Apply_GravityField(Object.character)
+        GravityFactor = 0.1
+        if Object.character.RUN_SPEED_KMPH_y < 0.0:
+            GravityFactor = 0.3
+        Phisics.Apply_GravityField(Object.character, GravityFactor)
     for name in Object.ObjectList:
         if Object.ObjectList[name].AffectedGravity:
             Phisics.Apply_GravityField(Object.ObjectList[name])
+
 
     Object.character.Move() # 캐릭터 이동
 
@@ -86,6 +91,11 @@ def update():
     # 충돌체크 및 처리
     CollisionCheck.Collsion_WndBoundary(Object.character, Object.Ground_Size)
     CollisionCheck.Collsion_WndBoundary(Object.character, Object.Canvas_SIZE)
+
+    if Object.character.y < 0 and not Gameover:
+        Gameover = True
+        Object.fade.Active_Fade_In()
+
     for name in Object.ObjectList:
         if Object.character.Left() < Object.ObjectList['Arrival'].Right() - 10 \
                 and Object.character.Right() > Object.ObjectList['Arrival'].Left() + 10:
@@ -97,7 +107,7 @@ def update():
             if Object.character.Bottom() >= Object.ObjectList[name].y - 10:
                 Object.Ground_Size.bottom = Object.ObjectList[name].y - 10
                 break
-        else: Object.Ground_Size.bottom = 45
+        else: Object.Ground_Size.bottom = Object.Canvas_SIZE.bottom =  -200.0
 
     GameTime.update_time()
 
@@ -107,6 +117,7 @@ def Scene_draw():
 
     #BackGround
     Object.ObjectList['BackGround'].draw()
+    Object.ObjectList['UnderGround'].draw()
 
     #Ground
     for name in Object.ObjectList:
@@ -123,6 +134,9 @@ def Scene_draw():
         if name[0:12] == 'Ground_Shade':
             Object.ObjectList[name].draw()
 
+    #Arrival_Shade
+    Object.ObjectList['Arrival_Shade'].draw()
+
     for info in Object.info_list:
         info.draw()
 
@@ -135,7 +149,7 @@ def Scene_draw():
         if Gameover:
             game_framework.push_state(gameover_state)
         if Nextstage_in:
-            game_framework.change_state(Stage3)
+            game_framework.change_state(Stage5)
 
 
 def draw():

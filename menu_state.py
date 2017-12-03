@@ -2,6 +2,10 @@ from pico2d import *
 import game_framework
 import GameTime
 import Stage1
+import Stage2
+import Stage3
+import Stage4
+import Stage5
 import title_state
 import Object
 
@@ -20,6 +24,18 @@ fade = None
 scrollmenu = False
 NEWSTART, CONTINUE = 0, 1
 select_into = NEWSTART
+
+
+def LoadSaveFile():
+    SaveFile = open('Data\\Bin\\SaveStage.txt', 'r')
+    StageName = SaveFile.readline()
+    if StageName == 'Stage1': game_framework.change_state(Stage1)
+    elif StageName == 'Stage2': game_framework.change_state(Stage2)
+    elif StageName == 'Stage3': game_framework.change_state(Stage3)
+    elif StageName == 'Stage4': game_framework.change_state(Stage4)
+    elif StageName == 'Stage5': game_framework.change_state(Stage5)
+    else: game_framework.change_state(Stage1)
+    SaveFile.close()
 
 
 def DeleteObject():
@@ -145,6 +161,8 @@ def draw():
             fade.draw()
         if fade.Num_opacify == 1.0:
             if select_into == NEWSTART: game_framework.change_state(Stage1)
+            if select_into == CONTINUE: LoadSaveFile()
+
     update_canvas()
     pass
 

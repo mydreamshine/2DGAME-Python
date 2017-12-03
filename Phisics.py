@@ -9,16 +9,16 @@ Acceleration = 2.0
 MaxSpeed = 30.0
 JumpSpeed = 100.0
 
-def Apply_GravityField(Object):
+def Apply_GravityField(Object, GravityFactor = 0.1):
     global GRAVITY
     if GameTime.action_Factor() != 0.0:
-        Object.RUN_SPEED_KMPH_y += (GRAVITY - Object.RUN_SPEED_KMPH_y) * 0.1 * GameTime.action_Factor()
+        Object.RUN_SPEED_KMPH_y += (GRAVITY - Object.RUN_SPEED_KMPH_y) * GravityFactor * GameTime.action_Factor()
     Object.Set_moveSpeed(Object.RUN_SPEED_KMPH_x, Object.RUN_SPEED_KMPH_y)
 
 
-def Apply_Friction_X(Object):
+def Apply_Friction_X(Object, FrictionFactor = 1.0):
     global FRICTION
-    Object.RUN_SPEED_KMPH_x *= FRICTION# * GameTime.action_Factor()
+    Object.RUN_SPEED_KMPH_x *= FRICTION * FrictionFactor# * GameTime.action_Factor()
     Object.Set_moveSpeed(Object.RUN_SPEED_KMPH_x, Object.RUN_SPEED_KMPH_y)
 
 

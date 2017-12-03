@@ -9,12 +9,12 @@ import Phisics
 
 import pause_state
 import gameover_state
-#import Stage4
+import Stage4
 
 Gameover = False
 Nextstage_in = False
 
-name = "Stage3"
+Stagename = "Stage3"
 
 TrafficTime = 0.0
 CurrentTrafficLight_R = False
@@ -23,15 +23,20 @@ CurrentTrafficLight_G = False
 
 
 def enter():
+    global Stagename
     GameTime.init_time()
     GameMusic.Play_Stage()
+    SaveFile = open('Data\\Bin\\SaveStage.txt', 'w')
+    SaveFile.write(Stagename)
+    SaveFile.close()
     Object.info_list = Object.create_infoFrom('Data\\Bin\\stage3_information.txt')
     Object.ObjectList = Object.create_ObjectsFrom('Data\\Bin\\stage3_Object.txt')
     Object.Ground_Size.right = Object.ObjectList['BackGround'].Right()
     Object.ObjectList['TrafficLight_R'].Num_opacify = 0.3
     Object.ObjectList['TrafficLight_Y'].Num_opacify = 0.3
 
-    global CurrentTrafficLight_R, CurrentTrafficLight_Y, CurrentTrafficLight_G
+    global TrafficTime, CurrentTrafficLight_R, CurrentTrafficLight_Y, CurrentTrafficLight_G
+    TrafficTime = 0.0
     CurrentTrafficLight_R = False
     CurrentTrafficLight_Y = False
     CurrentTrafficLight_G = True
@@ -87,7 +92,8 @@ def update():
         if Object.ObjectList[name].AffectedGravity:
             Phisics.Apply_GravityField(Object.ObjectList[name])
 
-    Object.character.Move() # 캐릭터 이동
+    FrictionFactor = 0.9
+    Object.character.Move(FrictionFactor) # 캐릭터 이동
 
     if CurrentTrafficLight_R and not CurrentTrafficLight_Y:
         if abs(Object.character.RUN_SPEED_KMPH_x) > 0.3 and not Gameover:
@@ -182,8 +188,7 @@ def Scene_draw():
         if Gameover:
             game_framework.push_state(gameover_state)
         if Nextstage_in:
-            #game_framework.change_state(Stage4)
-            game_framework.push_state(gameover_state)
+            game_framework.change_state(Stage4)
 
 
 def draw():
