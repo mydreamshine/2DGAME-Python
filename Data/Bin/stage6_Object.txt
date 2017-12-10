@@ -11,10 +11,46 @@
 		"DrawPrevImage":0,
 		"nPrevImage":0
 	},
+	"UnderGround":{
+		"ImagePath":"Data\\\\Graphic\\\\Background\\\\underground.png",
+		"x":400.0,
+		"y":35.0,
+		"nonFriction":1,
+		"AffectedGravity":0,
+		"ActiveFadeOut":0,
+		"ActiveFadeIn":0,
+		"Opacify":1.0,
+		"DrawPrevImage":0,
+		"nPrevImage":0
+	},
+	"Ground2":{
+		"ImagePath":"Data\\\\Graphic\\\\Background\\\\Tile_sky.png",
+		"x":580.0,
+		"y":300.0,
+		"nonFriction":1,
+		"AffectedGravity":0,
+		"ActiveFadeOut":0,
+		"ActiveFadeIn":0,
+		"Opacify":1.0,
+		"DrawPrevImage":0,
+		"nPrevImage":0
+	},
 	"Ground1":{
 		"ImagePath":"Data\\\\Graphic\\\\Background\\\\Tile_sky.png",
-		"x":650.0,
+		"x":180.0,
 		"y":150.0,
+		"nonFriction":1,
+		"AffectedGravity":0,
+		"ActiveFadeOut":0,
+		"ActiveFadeIn":0,
+		"Opacify":1.0,
+		"DrawPrevImage":0,
+		"nPrevImage":0
+	},
+	"Ground_Shade2":{
+		"ImagePath":"Data\\\\Graphic\\\\Background\\\\Tile_sky_Shade.png",
+		"x":580.0,
+		"y":45.0,
 		"nonFriction":1,
 		"AffectedGravity":0,
 		"ActiveFadeOut":0,
@@ -25,7 +61,7 @@
 	},
 	"Ground_Shade1":{
 		"ImagePath":"Data\\\\Graphic\\\\Background\\\\Tile_sky_Shade.png",
-		"x":650.0,
+		"x":180.0,
 		"y":45.0,
 		"nonFriction":1,
 		"AffectedGravity":0,
@@ -38,7 +74,7 @@
 	"Arrival":{
 		"ImagePath":"Data\\\\Graphic\\\\Background\\\\Tile_sky_Arrival.png",
 		"x":737.0,
-		"y":150.0,
+		"y":470.0,
 		"nonFriction":1,
 		"AffectedGravity":0,
 		"ActiveFadeOut":0,

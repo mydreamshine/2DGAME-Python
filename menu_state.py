@@ -6,6 +6,8 @@ import Stage2
 import Stage3
 import Stage4
 import Stage5
+import Stage6
+import Stage7
 import title_state
 import Object
 
@@ -34,6 +36,8 @@ def LoadSaveFile():
     elif StageName == 'Stage3': game_framework.change_state(Stage3)
     elif StageName == 'Stage4': game_framework.change_state(Stage4)
     elif StageName == 'Stage5': game_framework.change_state(Stage5)
+    elif StageName == 'Stage6': game_framework.change_state(Stage6)
+    elif StageName == 'Stage7': game_framework.change_state(Stage7)
     else: game_framework.change_state(Stage1)
     SaveFile.close()
 

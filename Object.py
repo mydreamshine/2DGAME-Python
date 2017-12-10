@@ -1,11 +1,13 @@
 from pico2d import *
 import json
 import Phisics
+import CollisionCheck
 
 Canvas_SIZE = None
 Ground_Size = None
 
 fade = None
+fade_dark = None
 character = None
 ObjectList = None
 info_list = None
@@ -55,6 +57,9 @@ class CObject:
         # 위치
         self.x, self.y = pos_x, pos_y
 
+        # 활동 영역
+        self.GroundField = CollisionCheck.Rect()
+
         # 생성 및 활동(객체 처리) 시간
         self.currentTime = get_time()
 
@@ -91,6 +96,11 @@ class CObject:
         self.MoveFrameHeight = 0  # 이동 이미지 프레임 세로크기
         self.idleFrameWidth = 0 # idle 이미지 프레임 가로크기
         self.idleFrameHeight = 0  # idle 이미지 프레임 세로크기
+        self.leftINimage = 0 # 출력할 이미지 상에서의 시작위치
+        self.bottomINimage = 0  # 출력할 이미지의 시작위치
+        self.WidthINimage = 0  # 출력할 이미지의 끝위치
+        self.HeightINimage = 0  # 출력할 이미지의 끝위치
+        self.SlideRapping = True # 슬라이드 랩핑 애니메이션 플래그
 
         self.PrevIMAGEs = None # 잔상
         self.draw_Previmages = False # 잔상 플래그
@@ -108,6 +118,7 @@ class CObject:
         while len(self.idleimage) > 0: self.idleimage.pop()
         if self.PrevIMAGEs != None: del (self.PrevIMAGEs)
         if self.name != None: del (self.name)
+        if self.GroundField != None: del(self.GroundField)
 
     # 이동 이미지 소스 등록 (이미지 경로, 애니메이션 프레임 갯수)
     def Append_moveimage(self, path_image, count_animated_frames = 1):
@@ -129,8 +140,8 @@ class CObject:
     def Set_moveFrames(self, index):
         self.moveimage_index = index
         self.FRAMES_PER_ACTION_move = self.moveimage[index].FRAMES_PER_ACTION
-        self.MoveFrameWidth = self.Size_Width = self.moveimage[index].property.w
-        self.MoveFrameHeight = self.Size_Height = self.moveimage[index].property.h
+        self.MoveFrameWidth = self.Size_Width = self.WidthINimage = self.moveimage[index].property.w
+        self.MoveFrameHeight = self.Size_Height = self.HeightINimage = self.moveimage[index].property.h
         self.stack_Frame = 0
         self.current_Frame = 0
         self.count_PrevFrame = 0
@@ -155,6 +166,9 @@ class CObject:
     # 위치 지정
     def Set_Pos(self, x = 0.0, y = 0.0):
         self.x, self.y = x, y
+
+    def Set_GroundField(self, RectField):
+        self.GroundField.left, self.GroundField.top, self.GroundField.right, self.GroundField.bottom = RectField.left, RectField.top, RectField.right, RectField.bottom
 
     # 이동속도 지정
     def Set_moveSpeed(self, Speed_x = 0.0, Speed_y = 0.0):
@@ -280,10 +294,16 @@ class CObject:
         # 객체 상태에 따른 이미지
         if self.move_state:
             self.moveimage[self.moveimage_index].property.opacify(self.Num_opacify)
-            self.moveimage[self.moveimage_index].property.clip_draw(self.current_Frame * self.MoveFrameWidth, 0, self.MoveFrameWidth, self.MoveFrameHeight, self.x, self.y, self.Size_Width, self.Size_Height)
+            self.moveimage[self.moveimage_index].property.clip_draw(\
+                self.leftINimage + self.current_Frame * self.MoveFrameWidth, self.bottomINimage,\
+                self.WidthINimage + self.MoveFrameWidth, self.HeightINimage + self.MoveFrameHeight,\
+                self.x, self.y, self.Size_Width, self.Size_Height)
         elif self.idle_state:
             self.idleimage[self.idleimage_index].property.opacify(self.Num_opacify)
-            self.idleimage[self.idleimage_index].property.clip_draw(self.current_Frame * self.idleFrameWidth, 0, self.idleFrameWidth, self.idleFrameHeight, self.x, self.y, self.Size_Width, self.Size_Height)
+            self.idleimage[self.idleimage_index].property.clip_draw(\
+                self.leftINimage + self.current_Frame * self.idleFrameWidth, self.bottomINimage,\
+                self.WidthINimage + self.idleFrameWidth, self.HeightINimage + self.idleFrameHeight,\
+                self.x, self.y, self.Size_Width, self.Size_Height)
 
     def handle_events(self, event):
         # 캐릭터 잔상 On/Off
@@ -340,7 +360,7 @@ def create_infoFrom(file_path):
 
 
 def create_ObjectsFrom(file_path):
-    global fade, character
+    global fade, fade_dark, character
     Objects_file = open(file_path, 'r')
 
     Objects_dic = json.load(Objects_file)
@@ -360,11 +380,14 @@ def create_ObjectsFrom(file_path):
         if Objects_dic[name]['ActiveFadeIn'] == 1:
             Object_source.Num_opacify = 0.0
             Object_source.Active_Fade_In()
+        Object_source.Num_opacify = Objects_dic[name]['Opacify']
         if Objects_dic[name]['DrawPrevImage'] == 1:
             Object_source.Draw_PrevImages(True, Objects_dic[name]['nPrevImage'])
 
         if Object_source.name == "fade":
             fade = Object_source
+        elif Object_source.name == "fade_dark":
+            fade_dark = Object_source
         elif Object_source.name == "character":
             character = Object_source
             character.JUMP = character.DOUBLEJUMP = True
@@ -375,8 +398,9 @@ def create_ObjectsFrom(file_path):
 
 
 def DeleteObjects():
-    global fade, character, ObjectList, info_list
+    global fade, fade_dark, character, ObjectList, ThornList, info_list
     if fade != None: del (fade); fade = None
+    if fade_dark != None: del (fade_dark); fade_dark = None
     if character != None: del (character); character = None
     if ObjectList != None:
         ObjectList.clear()

@@ -18,7 +18,8 @@ Stagename = "Stage1"
 
 
 def enter():
-    global Stagename
+    global Stagename, Gameover, Nextstage_in
+    Gameover = Nextstage_in = False
     GameTime.init_time()
     GameMusic.Play_Stage()
     SaveFile = open('Data\\Bin\\SaveStage.txt', 'w')

@@ -9,8 +9,7 @@ import Phisics
 
 import pause_state
 import gameover_state
-import menu_state
-#import Stage6
+import Stage6
 
 Gameover = False
 Nextstage_in = False
@@ -47,7 +46,8 @@ def moveBoard():
 
 
 def enter():
-    global Stagename
+    global Stagename, Gameover, Nextstage_in
+    Gameover = Nextstage_in = False
     GameTime.init_time()
     GameMusic.Play_Stage()
     SaveFile = open('Data\\Bin\\SaveStage.txt', 'w')
@@ -181,8 +181,7 @@ def Scene_draw():
         if Gameover:
             game_framework.push_state(gameover_state)
         if Nextstage_in:
-            #game_framework.change_state(Stage5)
-            game_framework.change_state(menu_state)
+            game_framework.change_state(Stage6)
 
 
 def draw():
