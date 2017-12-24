@@ -8,6 +8,26 @@ class Rect:
     def __init__(self, LEFT = 0.0, TOP = 0.0, RIGHT = 0.0, BOTTOM = 0.0):
         self.left, self.top, self.right, self.bottom = LEFT, TOP, RIGHT, BOTTOM
 
+
+# 교차 영역(사각형)
+def intersectRect_s(intersect, Rect1, Rect2):
+    VCollision = False
+    HCollision = False
+
+    # 수평 충돌
+    if Rect1.left < Rect2.right and Rect1.right > Rect2.left:
+        HCollision = True
+        intersect.left = max(Rect1.left, Rect2.left)
+        intersect.right = min(Rect1.right, Rect2.right)
+    # 수직 충돌
+    if Rect1.top > Rect2.bottom and Rect1.bottom < Rect2.top:
+        VCollision = True
+        intersect.top = min(Rect1.top, Rect2.top)
+        intersect.bottom = max(Rect1.bottom, Rect2.bottom)
+
+    return VCollision and HCollision
+
+
 # 교차 영역(사각형)
 def intersectRect(intersect, Object1, Object2):
     VCollision = False

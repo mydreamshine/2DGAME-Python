@@ -30,8 +30,7 @@ def Apply_Jump(Object):
 
 def Apply_Accelaration_X(Object, Direction):
     global Acceleration, MaxSpeed
-    if abs(Object.RUN_SPEED_KMPH_x) < MaxSpeed:
-        Object.RUN_SPEED_KMPH_x += Direction * Acceleration * GameTime.action_Factor()
-    else:
-        Object.RUN_SPEED_KMPH_x = Direction * MaxSpeed * GameTime.action_Factor()
+    Object.RUN_SPEED_KMPH_x += Direction * Acceleration * GameTime.action_Factor()
+    if abs(Object.RUN_SPEED_KMPH_x) > MaxSpeed:
+        Object.RUN_SPEED_KMPH_x = Direction * MaxSpeed
     Object.Set_moveSpeed(Object.RUN_SPEED_KMPH_x, Object.RUN_SPEED_KMPH_y)

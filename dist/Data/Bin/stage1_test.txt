@@ -1,0 +1,24 @@
+{
+	"stage_name":{
+		"ImagePath":"Data\\\\Graphic\\\\information\\\\stage_name.png",
+		"left":18,
+		"bottom":23,
+		"width":105,
+		"height":32,
+		"row":1,
+		"col":1,
+		"x":60,
+		"y":580
+	},
+	"stage_number":{
+		"ImagePath":"Data\\\\Graphic\\\\information\\\\Number_sheet.png",
+		"left":29,
+		"bottom":40,
+		"width":23,
+		"height":40,
+		"row":1,
+		"col":1,
+		"x":60,
+		"y":550
+	}
+}

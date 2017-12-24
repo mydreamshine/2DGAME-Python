@@ -96,10 +96,6 @@ class CObject:
         self.MoveFrameHeight = 0  # 이동 이미지 프레임 세로크기
         self.idleFrameWidth = 0 # idle 이미지 프레임 가로크기
         self.idleFrameHeight = 0  # idle 이미지 프레임 세로크기
-        self.leftINimage = 0 # 출력할 이미지 상에서의 시작위치
-        self.bottomINimage = 0  # 출력할 이미지의 시작위치
-        self.WidthINimage = 0  # 출력할 이미지의 끝위치
-        self.HeightINimage = 0  # 출력할 이미지의 끝위치
         self.SlideRapping = True # 슬라이드 랩핑 애니메이션 플래그
 
         self.PrevIMAGEs = None # 잔상
@@ -140,8 +136,8 @@ class CObject:
     def Set_moveFrames(self, index):
         self.moveimage_index = index
         self.FRAMES_PER_ACTION_move = self.moveimage[index].FRAMES_PER_ACTION
-        self.MoveFrameWidth = self.Size_Width = self.WidthINimage = self.moveimage[index].property.w
-        self.MoveFrameHeight = self.Size_Height = self.HeightINimage = self.moveimage[index].property.h
+        self.MoveFrameWidth = self.Size_Width = self.moveimage[index].property.w
+        self.MoveFrameHeight = self.Size_Height = self.moveimage[index].property.h
         self.stack_Frame = 0
         self.current_Frame = 0
         self.count_PrevFrame = 0
@@ -295,14 +291,14 @@ class CObject:
         if self.move_state:
             self.moveimage[self.moveimage_index].property.opacify(self.Num_opacify)
             self.moveimage[self.moveimage_index].property.clip_draw(\
-                self.leftINimage + self.current_Frame * self.MoveFrameWidth, self.bottomINimage,\
-                self.WidthINimage + self.MoveFrameWidth, self.HeightINimage + self.MoveFrameHeight,\
+                self.current_Frame * self.MoveFrameWidth, 0,\
+                self.MoveFrameWidth, self.MoveFrameHeight,\
                 self.x, self.y, self.Size_Width, self.Size_Height)
         elif self.idle_state:
             self.idleimage[self.idleimage_index].property.opacify(self.Num_opacify)
             self.idleimage[self.idleimage_index].property.clip_draw(\
-                self.leftINimage + self.current_Frame * self.idleFrameWidth, self.bottomINimage,\
-                self.WidthINimage + self.idleFrameWidth, self.HeightINimage + self.idleFrameHeight,\
+                self.current_Frame * self.idleFrameWidth, 0,\
+                self.idleFrameWidth, self.idleFrameHeight,\
                 self.x, self.y, self.Size_Width, self.Size_Height)
 
     def handle_events(self, event):
@@ -360,7 +356,7 @@ def create_infoFrom(file_path):
 
 
 def create_ObjectsFrom(file_path):
-    global fade, fade_dark, character
+    global fade, fade_dark, character, Canvas_SIZE
     Objects_file = open(file_path, 'r')
 
     Objects_dic = json.load(Objects_file)
@@ -388,6 +384,8 @@ def create_ObjectsFrom(file_path):
             fade = Object_source
         elif Object_source.name == "fade_dark":
             fade_dark = Object_source
+            fade_dark.x = Canvas_SIZE.right
+            fade_dark.Size_Width = 0
         elif Object_source.name == "character":
             character = Object_source
             character.JUMP = character.DOUBLEJUMP = True
