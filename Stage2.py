@@ -89,10 +89,10 @@ def update():
     CollisionCheck.Collsion_WndBoundary(Object.character, Object.Canvas_SIZE)
     for name in Object.ObjectList:
         if Object.character.Left() < Object.ObjectList['Arrival'].Right() - 10 \
-                and Object.character.Right() > Object.ObjectList['Arrival'].Left() + 10:
-            if Object.character.Bottom() >= Object.ObjectList['Arrival'].y - 10:
-                Object.Ground_Size.bottom = Object.ObjectList['Arrival'].y - 10
-                break
+                and Object.character.Right() > Object.ObjectList['Arrival'].Left() + 10\
+                and Object.character.Bottom() >= Object.ObjectList['Arrival'].y - 10:
+            Object.Ground_Size.bottom = Object.ObjectList['Arrival'].y - 10
+            break
         elif name[0:6] == 'Ground' and Object.character.Left() < Object.ObjectList[name].Right() - 10\
                 and Object.character.Right() > Object.ObjectList[name].Left() + 10:
             if Object.character.Bottom() >= Object.ObjectList[name].y - 10:

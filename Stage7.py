@@ -66,9 +66,9 @@ def process_Collision():
     PositionTopGround = False
     for name in Object.ObjectList:
         if Object.character.Left() < Object.ObjectList['Arrival'].Right() - 10 \
-                and Object.character.Right() > Object.ObjectList['Arrival'].Left() + 10:
-            if Object.character.Bottom() >= Object.ObjectList['Arrival'].y - 10:
-                Object.Ground_Size.bottom = Object.ObjectList['Arrival'].y - 10
+                and Object.character.Right() > Object.ObjectList['Arrival'].Left() + 10\
+                and Object.character.Bottom() >= Object.ObjectList['Arrival'].y - 10:
+            Object.Ground_Size.bottom = Object.ObjectList['Arrival'].y - 10
         elif not PositionTopGround and name[0:6] == 'Ground' and name[6] != '_' \
                 and Object.character.Left() < Object.ObjectList[name].Right() - 10 \
                 and Object.character.Right() > Object.ObjectList[name].Left() + 10:

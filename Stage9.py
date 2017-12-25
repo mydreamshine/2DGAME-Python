@@ -9,12 +9,13 @@ import Phisics
 
 import pause_state
 import gameover_state
-import Stage9
+import menu_state
+#import Stage10
 
 Gameover = False
 Nextstage_in = False
 
-Stagename = "Stage8"
+Stagename = "Stage9"
 
 Enable_Dark = False
 Disable_Dark = True
@@ -22,6 +23,11 @@ Active_Fog = False
 
 MOVE_LEFT, MOVE_RIGHT = 0, 1
 BoardState = MOVE_LEFT
+
+TrafficTime = 0.0
+CurrentTrafficLight_R = False
+CurrentTrafficLight_Y = False
+CurrentTrafficLight_G = False
 
 
 def moveLaser():
@@ -120,7 +126,7 @@ def process_Collision():
     CollisionCheck.Collsion_WndBoundary(Object.character, Object.Ground_Size)
     CollisionCheck.Collsion_WndBoundary(Object.character, Object.Canvas_SIZE)
     for name in Object.ObjectList:
-        if name[0:5] == 'Thorn':
+        if name[0:5] == 'Thorn' and name[0:6] != 'ThornR':
             CollisionCheck.Collsion_WndBoundary(Object.ObjectList[name], Object.ObjectList[name].GroundField)
 
     if Object.character.y < 0 and not Gameover:
@@ -129,17 +135,22 @@ def process_Collision():
 
     PositionTopGround = False
     for name in Object.ObjectList:
-        if Object.character.Left() < Object.ObjectList['Arrival'].Right() - 10 \
-                and Object.character.Right() > Object.ObjectList['Arrival'].Left() + 10:
-            if Object.character.Bottom() >= Object.ObjectList['Arrival'].y - 10:
-                Object.Ground_Size.bottom = Object.ObjectList['Arrival'].y - 10
+        if Object.character.Left() < Object.ObjectList['Arrival'].Right() - 10\
+                and Object.character.Right() > Object.ObjectList['Arrival'].Left() + 10\
+                and Object.character.Bottom() >= Object.ObjectList['Arrival'].y - 10:
+            Object.Ground_Size.bottom = Object.ObjectList['Arrival'].y - 10
+
         elif not PositionTopGround and name[0:6] == 'Ground' and name[6] != '_' \
                 and Object.character.Left() < Object.ObjectList[name].Right() - 10 \
                 and Object.character.Right() > Object.ObjectList[name].Left() + 10:
-            if Object.character.Bottom() >= Object.ObjectList[name].y - 10 and Object.ObjectList[name].Num_opacify >= 0.6:
+            if Object.character.Bottom() >= Object.ObjectList[name].y - 10 and Object.ObjectList[name].Num_opacify >= 0.5:
                 Object.Ground_Size.bottom = Object.ObjectList[name].y - 10
                 PositionTopGround = True
-        elif (name[0:5] == 'Thorn' or name[0:5] == 'Laser') and not Gameover:
+
+        elif not PositionTopGround:
+            Object.Ground_Size.bottom = Object.Canvas_SIZE.bottom = -200.0
+
+        if (name[0:5] == 'Thorn' or name[0:5] == 'Laser') and not Gameover:
             IntersectRect = CollisionCheck.Rect()
             Rect1 = CollisionCheck.Rect()
             Rect2 = CollisionCheck.Rect()
@@ -147,7 +158,12 @@ def process_Collision():
             Rect1.top = Object.character.Top() - 10
             Rect1.right = Object.character.Right() - 10
             Rect1.bottom = Object.character.Bottom() + 10
-            if name[0:5] == 'Thorn':
+            if name[0:6] == 'ThornR':
+                Rect2.left = Object.ObjectList[name].Left() + 18
+                Rect2.top = Object.ObjectList[name].Top() - 10
+                Rect2.right = Object.ObjectList[name].Right() - 18
+                Rect2.bottom = Object.ObjectList[name].Bottom() + 15
+            elif name[0:5] == 'Thorn':
                 Rect2.left = Object.ObjectList[name].Left() + 15
                 Rect2.top = Object.ObjectList[name].Top() - 17
                 Rect2.right = Object.ObjectList[name].Right() - 15
@@ -161,19 +177,49 @@ def process_Collision():
             if CollisionCheck.intersectRect_s(IntersectRect, Rect1, Rect2):
                 Gameover = True
                 Object.fade.Active_Fade_In()
-        elif not PositionTopGround:
-            Object.Ground_Size.bottom = Object.Canvas_SIZE.bottom = -200.0
 
-        if name[0:5] == 'Thorn':
+        if name[0:5] == 'Thorn' and Object.ObjectList[name].AffectedGravity:
             for notThorn in Object.ObjectList:
                 if notThorn[0:6] == 'Ground' and notThorn[6] != '_' \
                         and Object.ObjectList[name].Left() < Object.ObjectList[notThorn].Right() - 10 \
                         and Object.ObjectList[name].Right() > Object.ObjectList[name].Left() + 10:
-                    if Object.ObjectList[name].Bottom() >= Object.ObjectList[notThorn].y - 10 and Object.ObjectList[notThorn].Num_opacify >= 0.6:
+                    if Object.ObjectList[name].Bottom() >= Object.ObjectList[notThorn].y - 10 and Object.ObjectList[notThorn].Num_opacify >= 0.5:
                         Object.ObjectList[name].GroundField.bottom = Object.ObjectList[notThorn].y - 10
                         break
                 else:
                     Object.ObjectList[name].GroundField.bottom = -200.0
+
+
+def processTrafficLight():
+    global Gameover
+    global TrafficTime, CurrentTrafficLight_G, CurrentTrafficLight_Y, CurrentTrafficLight_R
+    if CurrentTrafficLight_R and not CurrentTrafficLight_Y:
+        if abs(Object.character.RUN_SPEED_KMPH_x) > 0.3 and not Gameover:
+            Gameover = True
+            Object.fade.Active_Fade_In()
+    if Object.fade.Num_opacify == 0.0: TrafficTime += GameTime.actiontime_frame
+    if CurrentTrafficLight_Y and TrafficTime >= 0.9:
+        TrafficTime = 0.0
+        if CurrentTrafficLight_G:
+            CurrentTrafficLight_G = False
+            CurrentTrafficLight_Y = False
+            CurrentTrafficLight_R = True
+            Object.ObjectList['TrafficLight_R'].Num_opacify = 1.0
+            Object.ObjectList['TrafficLight_Y'].Num_opacify = 0.3
+            Object.ObjectList['TrafficLight_G'].Num_opacify = 0.3
+        elif CurrentTrafficLight_R:
+            CurrentTrafficLight_R = False
+            CurrentTrafficLight_Y = False
+            CurrentTrafficLight_G = True
+            Object.ObjectList['TrafficLight_R'].Num_opacify = 0.3
+            Object.ObjectList['TrafficLight_Y'].Num_opacify = 0.3
+            Object.ObjectList['TrafficLight_G'].Num_opacify = 1.0
+    elif TrafficTime >= 1.5:
+        TrafficTime = 0.0
+        CurrentTrafficLight_Y = True
+        Object.ObjectList['TrafficLight_R'].Num_opacify = 0.3
+        Object.ObjectList['TrafficLight_Y'].Num_opacify = 1.0
+        Object.ObjectList['TrafficLight_G'].Num_opacify = 0.3
 
 
 def enter():
@@ -189,9 +235,18 @@ def enter():
     SaveFile = open('Data\\Bin\\SaveStage.txt', 'w')
     SaveFile.write(Stagename)
     SaveFile.close()
-    Object.info_list = Object.create_infoFrom('Data\\Bin\\stage8_information.txt')
-    Object.ObjectList = Object.create_ObjectsFrom('Data\\Bin\\stage8_Object.txt')
+
+    global TrafficTime, CurrentTrafficLight_R, CurrentTrafficLight_Y, CurrentTrafficLight_G
+    TrafficTime = 0.0
+    CurrentTrafficLight_R = False
+    CurrentTrafficLight_Y = False
+    CurrentTrafficLight_G = True
+
+    Object.info_list = Object.create_infoFrom('Data\\Bin\\stage9_information.txt')
+    Object.ObjectList = Object.create_ObjectsFrom('Data\\Bin\\stage9_Object.txt')
     Object.Ground_Size.right = Object.ObjectList['BackGround'].Right()
+
+    Object.ObjectList['Ground4'].Size_Width /= 2
 
     for name in Object.ObjectList:
         if name[0:5] == 'Thorn':
@@ -210,7 +265,7 @@ def resume():
 
 
 def handle_events():
-    global Nextstage_in, Active_Fog, Gameover
+    global Nextstage_in, Active_Fog
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -221,7 +276,7 @@ def handle_events():
             game_framework.push_state(pause_state)
         else:
             Object.character.handle_events(event)
-        if (event.type, event.key) == (SDL_KEYDOWN, SDLK_LCTRL) and not Gameover:
+        if (event.type, event.key) == (SDL_KEYDOWN, SDLK_LCTRL):
 
             DecidedOpacifyAll = True
             for name in Object.ObjectList:
@@ -256,6 +311,7 @@ def update_ActiveTime(): # 움직이는 물체에 대한 활동주기 갱신
 
 
 def update():
+    global Gameover
     Object.fade.Set_ActiveTime()
     if Object.fade_dark != None:
         Object.fade_dark.Set_ActiveTime()
@@ -263,32 +319,28 @@ def update():
         Deactive_dark_Fog_update()
 
     # 중력장 적용
-    if not Gameover:
-        if Object.character.AffectedGravity:
-            GravityFactor = 0.1
-            if Object.character.RUN_SPEED_KMPH_y < 0.0:
-                GravityFactor = 0.3
-            Phisics.Apply_GravityField(Object.character, GravityFactor)
-        for name in Object.ObjectList:
-            if Object.ObjectList[name].AffectedGravity:
-                Phisics.Apply_GravityField(Object.ObjectList[name], 0.1)
-                Object.ObjectList[name].Move()
-            else:
-                if name != 'Ground-move' and name[0:5] != 'Laser':
-                    Object.ObjectList[name].Set_ActiveTime()
+    if Object.character.AffectedGravity and not Gameover:
+        GravityFactor = 0.1
+        if Object.character.RUN_SPEED_KMPH_y < 0.0:
+            GravityFactor = 0.3
+        Phisics.Apply_GravityField(Object.character, GravityFactor)
+    for name in Object.ObjectList:
+        if Object.ObjectList[name].AffectedGravity:
+            Phisics.Apply_GravityField(Object.ObjectList[name], 0.1)
+            Object.ObjectList[name].Move()
+        else:
+            if name != 'Ground-move' and name[0:5] != 'Laser':
+                Object.ObjectList[name].Set_ActiveTime()
 
-        FrictionFactor = 0.9
-        Object.character.Move(FrictionFactor)  # 캐릭터 이동
+    FrictionFactor = 0.9
+    if not Gameover: Object.character.Move(FrictionFactor)  # 캐릭터 이동
 
-        moveBoard() # 발판 이동
-
-        moveLaser() # 레이저 이동
-
-        # 배경 원근이동
-        Posx_factor = ((Object.ObjectList['BackGround'].Size_Width - Object.Canvas_SIZE.right) / 6) * ((400.0 - Object.character.x) / 400.0)
-        Object.ObjectList['BackGround'].Set_Pos(400.0 + Posx_factor, Object.ObjectList['BackGround'].y)
+    # 배경 원근이동
+    Posx_factor = ((Object.ObjectList['BackGround'].Size_Width - Object.Canvas_SIZE.right) / 6) * ((400.0 - Object.character.x) / 400.0)
+    Object.ObjectList['BackGround'].Set_Pos(400.0 + Posx_factor, Object.ObjectList['BackGround'].y)
 
     GameTime.update_time()
+    processTrafficLight()
 
 
 def Scene_draw():
@@ -313,6 +365,11 @@ def Scene_draw():
         if name[0:5] == 'Thorn' or name[0:5] == 'Laser':
             Object.ObjectList[name].draw()
 
+    # TrafficLight
+    Object.ObjectList['TrafficLight_R'].draw()
+    Object.ObjectList['TrafficLight_Y'].draw()
+    Object.ObjectList['TrafficLight_G'].draw()
+
     #충돌 처리
     process_Collision()
 
@@ -329,7 +386,8 @@ def Scene_draw():
         if Gameover:
             game_framework.push_state(gameover_state)
         if Nextstage_in:
-            game_framework.change_state(Stage9)
+            #game_framework.change_state(Stage10)
+            game_framework.change_state(menu_state)
 
 
 def draw():
